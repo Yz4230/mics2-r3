@@ -1,0 +1,9 @@
+# filesystem
+.DS_Store
+
+# IDE
+/.vscode
+
+# artifacts
+/obj
+minishogi-by-gcc
