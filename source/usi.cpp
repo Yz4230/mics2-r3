@@ -1,4 +1,4 @@
-﻿#include "usi.h"
+#include "usi.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "search.h"

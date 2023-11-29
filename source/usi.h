@@ -1,4 +1,4 @@
-﻿#ifndef _USI_H_
+#ifndef _USI_H_
 #define _USI_H_
 
 #include "types.h"

@@ -1,4 +1,4 @@
-﻿#ifndef _BITOP_H_
+#ifndef _BITOP_H_
 #define _BITOP_H_
 
 #include "../types.h"

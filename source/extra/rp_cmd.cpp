@@ -1,4 +1,4 @@
-﻿#include "../types.h"
+#include "../types.h"
 
 // USI拡張コマンドのうち、開発上のテスト関係のコマンド。
 // 思考エンジンの実行には関係しない。GitHubにはcommitしないかも。

@@ -1,4 +1,4 @@
-﻿#ifndef _BITBOARD_H_
+#ifndef _BITBOARD_H_
 #define _BITBOARD_H_
 
 #include "types.h"

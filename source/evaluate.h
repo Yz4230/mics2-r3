@@ -1,4 +1,4 @@
-﻿#ifndef _EVALUATE_H_
+#ifndef _EVALUATE_H_
 #define _EVALUATE_H_
 
 #include "position.h"

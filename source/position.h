@@ -1,4 +1,4 @@
-﻿#ifndef _POSITION_H_
+#ifndef _POSITION_H_
 #define _POSITION_H_
 
 #include "bitboard.h"

@@ -1,4 +1,4 @@
-﻿#include "evaluate.h"
+#include "evaluate.h"
 
 namespace Eval {
 int PieceValue[PIECE_NB] = {

@@ -1,4 +1,4 @@
-﻿#include "search.h"
+#include "search.h"
 #include "usi.h"
 
 
