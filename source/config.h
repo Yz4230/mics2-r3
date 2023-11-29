@@ -70,31 +70,32 @@
 // USE_DEBUG_ASSERTが有効なときには、ASSERTの内容を出力したあと、3秒待ってから
 // アクセス違反になるようなコードを実行する。
 #if !defined(USE_DEBUG_ASSERT)
-#define ASSERT(X)                                                              \
-  {                                                                            \
-    if (!(X))                                                                  \
-      *(int *)1 = 0;                                                           \
+#define ASSERT(X)    \
+  {                  \
+    if (!(X))        \
+      *(int *)1 = 0; \
   }
 #else
 #include <chrono>
 #include <iostream>
 #include <thread>
 
-#define ASSERT(X)                                                              \
-  {                                                                            \
-    if (!(X)) {                                                                \
-      std::cout << "\nError : ASSERT(" << #X << "), " << __FILE__ << "("       \
-                << __LINE__ << "): " << __func__ << std::endl;                 \
-      std::this_thread::sleep_for(std::chrono::microseconds(3000));            \
-      *(int *)1 = 0;                                                           \
-    }                                                                          \
+#define ASSERT(X)                                                        \
+  {                                                                      \
+    if (!(X))                                                            \
+    {                                                                    \
+      std::cout << "\nError : ASSERT(" << #X << "), " << __FILE__ << "(" \
+                << __LINE__ << "): " << __func__ << std::endl;           \
+      std::this_thread::sleep_for(std::chrono::microseconds(3000));      \
+      *(int *)1 = 0;                                                     \
+    }                                                                    \
   }
 #endif
 
-#define ASSERT_LV_EX(L, X)                                                     \
-  {                                                                            \
-    if (L <= ASSERT_LV)                                                        \
-      ASSERT(X);                                                               \
+#define ASSERT_LV_EX(L, X) \
+  {                        \
+    if (L <= ASSERT_LV)    \
+      ASSERT(X);           \
   }
 #define ASSERT_LV1(X) ASSERT_LV_EX(1, X)
 #define ASSERT_LV2(X) ASSERT_LV_EX(2, X)
@@ -108,12 +109,12 @@
 
 // デバッグ時は普通にしとかないと変なアドレスにジャンプして原因究明に時間がかかる。
 #if defined(_MSC_VER)
-#define UNREACHABLE                                                            \
-  ASSERT_LV3(false);                                                           \
+#define UNREACHABLE  \
+  ASSERT_LV3(false); \
   __assume(0);
 #elif defined(__GNUC__)
-#define UNREACHABLE                                                            \
-  ASSERT_LV3(false);                                                           \
+#define UNREACHABLE  \
+  ASSERT_LV3(false); \
   __builtin_unreachable();
 #else
 #define UNREACHABLE ASSERT_LV3(false);
@@ -133,8 +134,8 @@ constexpr bool pretty_jp = false;
 // ----------------------------
 
 // ターゲットが64bitOSかどうか
-#if (defined(_WIN64) && defined(_MSC_VER)) ||                                  \
-    (defined(__GNUC__) && defined(__x86_64__)) || defined(IS_64BIT)
+#if (defined(_WIN64) && defined(_MSC_VER)) || \
+    (defined(__GNUC__) && (defined(__x86_64__) || defined(__aarch64__))) || defined(IS_64BIT)
 constexpr bool Is64Bit = true;
 #ifndef IS_64BIT
 #define IS_64BIT
