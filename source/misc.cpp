@@ -1,7 +1,7 @@
+#include "misc.h"
+
 #include <fstream>
 #include <sstream>
-
-#include "misc.h"
 
 using namespace std;
 
@@ -24,12 +24,11 @@ struct Tie : public streambuf {
 
   int write(int c, const char *prefix) {
     static int last = '\n';
-    if (last == '\n')
-      log->sputn(prefix, 3);
+    if (last == '\n') log->sputn(prefix, 3);
     return last = log->sputc((char)c);
   }
 
-  streambuf *buf, *log; // 標準入出力 , ログファイル
+  streambuf *buf, *log;  // 標準入出力 , ログファイル
 };
 
 struct Logger {
@@ -49,12 +48,12 @@ struct Logger {
     }
   }
 
-private:
-  Tie in, out; // 標準入力とファイル、標準出力とファイルのひも付け
-  ofstream file; // ログを書き出すファイル
+ private:
+  Tie in, out;  // 標準入力とファイル、標準出力とファイルのひも付け
+  ofstream file;  // ログを書き出すファイル
 
   // clangだとここ警告が出るので一時的に警告を抑制する。
-#pragma warning(disable : 4068) // MSVC用の不明なpragmaの抑制
+#pragma warning(disable : 4068)  // MSVC用の不明なpragmaの抑制
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wuninitialized"
   Logger() : in(cin.rdbuf(), file.rdbuf()), out(cout.rdbuf(), file.rdbuf()) {}
@@ -63,7 +62,7 @@ private:
   ~Logger() { start(false); }
 };
 
-} // namespace
+}  // namespace
 
 // Trampoline helper to avoid moving Logger to misc.h
 void start_logger(bool b) { Logger::start(b); }
@@ -84,10 +83,9 @@ const string engine_info() {
 
 // 使用したコンパイラについての文字列を返す。
 const std::string compiler_info() {
-
 #define stringify2(x) #x
 #define stringify(x) stringify2(x)
-#define make_version_string(major, minor, patch)                               \
+#define make_version_string(major, minor, patch) \
   stringify(major) "." stringify(minor) "." stringify(patch)
 
   /// Predefined macros hell:

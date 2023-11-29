@@ -157,14 +157,10 @@ namespace {
 // square のマスにおける、障害物を調べる必要がある場所を調べて Bitboard で返す。
 Bitboard rookBlockMaskCalc(const Square square) {
   Bitboard result = FILE_BB[file_of(square)] ^ RANK_BB[rank_of(square)];
-  if (file_of(square) != FILE_5)
-    result &= ~FILE5_BB;
-  if (file_of(square) != FILE_1)
-    result &= ~FILE1_BB;
-  if (rank_of(square) != RANK_5)
-    result &= ~RANK5_BB;
-  if (rank_of(square) != RANK_1)
-    result &= ~RANK1_BB;
+  if (file_of(square) != FILE_5) result &= ~FILE5_BB;
+  if (file_of(square) != FILE_1) result &= ~FILE1_BB;
+  if (rank_of(square) != RANK_5) result &= ~RANK5_BB;
+  if (rank_of(square) != RANK_1) result &= ~RANK1_BB;
   return result;
 }
 
@@ -176,8 +172,7 @@ Bitboard bishopBlockMaskCalc(const Square square) {
   for (auto sq : SQ) {
     const Rank r = rank_of(sq);
     const File f = file_of(sq);
-    if (abs(rank - r) == abs(file - f))
-      result |= sq;
+    if (abs(rank - r) == abs(file - f)) result |= sq;
   }
   result &= ~(RANK5_BB | RANK1_BB | FILE5_BB | FILE1_BB);
   result &= ~Bitboard(square);
@@ -189,20 +184,18 @@ Bitboard bishopBlockMaskCalc(const Square square) {
 // occupied  障害物があるマスが 1 の bitboard
 Bitboard attackCalc(const Square square, const Bitboard &occupied,
                     const bool isBishop) {
-
   // 飛車と角の利きの方角
   const SquareWithWall deltaArray[2][4] = {
       {SQWW_U, SQWW_D, SQWW_L, SQWW_R}, {SQWW_LU, SQWW_LD, SQWW_RD, SQWW_RU}};
 
   Bitboard result = ZERO_BB;
   for (SquareWithWall delta : deltaArray[isBishop]) {
-
     // 壁に当たるまでsqを利き方向に伸ばしていく
     for (auto sq = to_sqww(square) + delta; is_ok(sq); sq += delta) {
       auto s = sqww_to_sq(
-          sq); // まだ障害物に当っていないのでここまでは利きが到達している
+          sq);  // まだ障害物に当っていないのでここまでは利きが到達している
       result |= s;
-      if (occupied & s) // sqの地点に障害物があればこのrayは終了。
+      if (occupied & s)  // sqの地点に障害物があればこのrayは終了。
         break;
     }
   }
@@ -223,8 +216,7 @@ Bitboard indexToOccupied(const int index, const int bits,
   ;
   for (int i = 0; i < bits; ++i) {
     const Square sq = tmpBlockMask.pop();
-    if (index & (1 << i))
-      result |= sq;
+    if (index & (1 << i)) result |= sq;
   }
   return result;
 }
@@ -260,9 +252,9 @@ void init_apery_attack_tables() {
   initAttacks(true);
 }
 
-} // namespace
+}  // namespace
 
-#endif // !defined(USE_MAGIC_BITBOARD)
+#endif  // !defined(USE_MAGIC_BITBOARD)
 
 // ----------------------------------------------------------------------------------------------
 
@@ -281,59 +273,59 @@ std::ostream &operator<<(std::ostream &os, const Bitboard &board) {
 // 盤上sqに駒pc(先後の区別あり)を置いたときの利き。
 Bitboard effects_from(Piece pc, Square sq, const Bitboard &occ) {
   switch (pc) {
-  case B_PAWN:
-    return pawnEffect(BLACK, sq);
-  case B_SILVER:
-    return silverEffect(BLACK, sq);
-  case B_GOLD:
-  case B_PRO_PAWN:
-  case B_PRO_SILVER:
-    return goldEffect(BLACK, sq);
+    case B_PAWN:
+      return pawnEffect(BLACK, sq);
+    case B_SILVER:
+      return silverEffect(BLACK, sq);
+    case B_GOLD:
+    case B_PRO_PAWN:
+    case B_PRO_SILVER:
+      return goldEffect(BLACK, sq);
 
-  case W_PAWN:
-    return pawnEffect(WHITE, sq);
-  case W_SILVER:
-    return silverEffect(WHITE, sq);
-  case W_GOLD:
-  case W_PRO_PAWN:
-  case W_PRO_SILVER:
-    return goldEffect(WHITE, sq);
+    case W_PAWN:
+      return pawnEffect(WHITE, sq);
+    case W_SILVER:
+      return silverEffect(WHITE, sq);
+    case W_GOLD:
+    case W_PRO_PAWN:
+    case W_PRO_SILVER:
+      return goldEffect(WHITE, sq);
 
-    // 　先後同じ移動特性の駒
-  case B_BISHOP:
-  case W_BISHOP:
-    return bishopEffect(sq, occ);
-  case B_ROOK:
-  case W_ROOK:
-    return rookEffect(sq, occ);
-  case B_HORSE:
-  case W_HORSE:
-    return horseEffect(sq, occ);
-  case B_DRAGON:
-  case W_DRAGON:
-    return dragonEffect(sq, occ);
-  case B_KING:
-  case W_KING:
-    return kingEffect(sq);
-  case B_QUEEN:
-  case W_QUEEN:
-    return horseEffect(sq, occ) | dragonEffect(sq, occ);
+      // 　先後同じ移動特性の駒
+    case B_BISHOP:
+    case W_BISHOP:
+      return bishopEffect(sq, occ);
+    case B_ROOK:
+    case W_ROOK:
+      return rookEffect(sq, occ);
+    case B_HORSE:
+    case W_HORSE:
+      return horseEffect(sq, occ);
+    case B_DRAGON:
+    case W_DRAGON:
+      return dragonEffect(sq, occ);
+    case B_KING:
+    case W_KING:
+      return kingEffect(sq);
+    case B_QUEEN:
+    case W_QUEEN:
+      return horseEffect(sq, occ) | dragonEffect(sq, occ);
 
-  case NO_PIECE:
-  case PIECE_WHITE:
-  case 2:
-  case 3:
-  case 10:
-  case 11:
-  case 18:
-  case 19:
-  case 26:
-  case 27:
-    return ZERO_BB; // これも入れておかないと初期化が面倒になる。
+    case NO_PIECE:
+    case PIECE_WHITE:
+    case 2:
+    case 3:
+    case 10:
+    case 11:
+    case 18:
+    case 19:
+    case 26:
+    case 27:
+      return ZERO_BB;  // これも入れておかないと初期化が面倒になる。
 
-  default:
-    UNREACHABLE;
-    return ALL_BB;
+    default:
+      UNREACHABLE;
+      return ALL_BB;
   }
 }
 
@@ -380,8 +372,7 @@ void Bitboards::init() {
     auto result = ZERO_BB;
     for (int i = 0; i < bits; ++i) {
       const Square sq = mask.pop();
-      if (index & (1 << i))
-        result ^= sq;
+      if (index & (1 << i)) result ^= sq;
     }
     return result;
   };
@@ -399,10 +390,10 @@ void Bitboards::init() {
       // 壁に当たるまでsqを利き方向に伸ばしていく
       for (auto sq = to_sqww(square) + delta; is_ok(sq); sq += delta) {
         result ^= sqww_to_sq(
-            sq); // まだ障害物に当っていないのでここまでは利きが到達している
+            sq);  // まだ障害物に当っていないのでここまでは利きが到達している
 
         if (occupied &
-            sqww_to_sq(sq)) // sqの地点に障害物があればこのrayは終了。
+            sqww_to_sq(sq))  // sqの地点に障害物があればこのrayは終了。
           break;
       }
     }
@@ -444,13 +435,11 @@ void Bitboards::init() {
       Bitboard bb = ZERO_BB;
       for (int r = rank_of(sq) - 1; r >= RANK_1; --r) {
         bb |= file_of(sq) | (Rank)r;
-        if (ii & (1 << r))
-          break;
+        if (ii & (1 << r)) break;
       }
       for (int r = rank_of(sq) + 1; r <= RANK_5; ++r) {
         bb |= file_of(sq) | (Rank)r;
-        if (ii & (1 << r))
-          break;
+        if (ii & (1 << r)) break;
       }
       RookFileEffect[rank][i] = bb.p;
       // RookEffectFile[RANK_NB][x]
@@ -501,13 +490,11 @@ void Bitboards::init() {
       Bitboard bb = ZERO_BB;
       for (int f = file_of(sq) - 1; f >= FILE_1; --f) {
         bb |= (File)f | rank_of(sq);
-        if (ii & (1 << f))
-          break;
+        if (ii & (1 << f)) break;
       }
       for (int f = file_of(sq) + 1; f <= FILE_5; ++f) {
         bb |= (File)f | rank_of(sq);
-        if (ii & (1 << f))
-          break;
+        if (ii & (1 << f)) break;
       }
       RookRankEffect[file][i] = bb;
       // RookRankEffect[FILE_NB][x]
@@ -546,7 +533,7 @@ void Bitboards::init() {
       Bitboard pawn = lanceEffect(c, sq, ALL_BB);
       if (pawn) {
         Square sq2 = pawn.pop();
-        Bitboard pawn2 = lanceEffect(c, sq2, ALL_BB); // さらに1つ前
+        Bitboard pawn2 = lanceEffect(c, sq2, ALL_BB);  // さらに1つ前
         if (pawn2)
           tmp = bishopEffect(sq2, ALL_BB) & RANK_BB[rank_of(pawn2.pop())];
       }
@@ -559,8 +546,7 @@ void Bitboards::init() {
       // 金は長さ1の角と飛車の利き。ただし、角のほうは相手側の歩の行き先の段でmaskしてしまう。
       Bitboard e_pawn = lanceEffect(~c, sq, ALL_BB);
       Bitboard mask = ZERO_BB;
-      if (e_pawn)
-        mask = RANK_BB[rank_of(e_pawn.pop())];
+      if (e_pawn) mask = RANK_BB[rank_of(e_pawn.pop())];
       GoldEffectBB[sq][c] =
           (bishopEffect(sq, ALL_BB) & ~mask) | rookEffect(sq, ALL_BB);
 
@@ -586,8 +572,7 @@ void Bitboards::init() {
 
   // 7) 二歩用のテーブル初期化
 
-  for (auto sq : SQ)
-    PAWN_DROP_MASKS[sq] = ~FILE_BB[SquareToFile[sq]].p;
+  for (auto sq : SQ) PAWN_DROP_MASKS[sq] = ~FILE_BB[SquareToFile[sq]].p;
 
   // 8) BetweenBB , LineBBの初期化
   {
@@ -601,20 +586,17 @@ void Bitboards::init() {
         // のように初期化したほうが明快なコードだが、この初期化をそこに依存したくないので愚直にやる。
 
         // これについてはあとで設定する。
-        if (s1 >= s2)
-          continue;
+        if (s1 >= s2) continue;
 
         // 方角を用いるテーブルの初期化
         if (Effect8::directions_of(s1, s2)) {
           Bitboard bb = ZERO_BB;
           // 間に挟まれた升を1に
           Square delta = (s2 - s1) / dist(s1, s2);
-          for (Square s = s1 + delta; s != s2; s += delta)
-            bb |= s;
+          for (Square s = s1 + delta; s != s2; s += delta) bb |= s;
 
           // ZERO_BBなら、このindexとしては0を指しておけば良いので書き換える必要ない。
-          if (!bb)
-            continue;
+          if (!bb) continue;
 
           BetweenIndex[s1][s2] = between_index;
           BetweenBB[between_index++] = bb;
@@ -626,8 +608,7 @@ void Bitboards::init() {
     // 対称性を考慮して、さらにシュリンクする。
     for (auto s1 : SQ)
       for (auto s2 : SQ)
-        if (s1 > s2)
-          BetweenIndex[s1][s2] = BetweenIndex[s2][s1];
+        if (s1 > s2) BetweenIndex[s1][s2] = BetweenIndex[s2][s1];
   }
   for (auto s1 : SQ)
     for (int d = 0; d < 4; ++d) {
@@ -653,23 +634,23 @@ void Bitboards::init() {
     // 9)
     // 王手となる候補の駒のテーブル初期化(王手の指し手生成に必要。やねうら王nanoでは削除予定)
 
-#define FOREACH_KING(BB, EFFECT)                                               \
-  {                                                                            \
-    for (auto sq : BB) {                                                       \
-      target |= EFFECT(sq);                                                    \
-    }                                                                          \
+#define FOREACH_KING(BB, EFFECT) \
+  {                              \
+    for (auto sq : BB) {         \
+      target |= EFFECT(sq);      \
+    }                            \
   }
-#define FOREACH(BB, EFFECT)                                                    \
-  {                                                                            \
-    for (auto sq : BB) {                                                       \
-      target |= EFFECT(them, sq);                                              \
-    }                                                                          \
+#define FOREACH(BB, EFFECT)       \
+  {                               \
+    for (auto sq : BB) {          \
+      target |= EFFECT(them, sq); \
+    }                             \
   }
-#define FOREACH_BR(BB, EFFECT)                                                 \
-  {                                                                            \
-    for (auto sq : BB) {                                                       \
-      target |= EFFECT(sq, ZERO_BB);                                           \
-    }                                                                          \
+#define FOREACH_BR(BB, EFFECT)       \
+  {                                  \
+    for (auto sq : BB) {             \
+      target |= EFFECT(sq, ZERO_BB); \
+    }                                \
   }
 
   for (auto Us : COLOR)
@@ -690,13 +671,13 @@ void Bitboards::init() {
       FOREACH(silverEffect(them, ksq), silverEffect);
       FOREACH(
           enemyGold,
-          silverEffect); // 移動先が敵陣 == 成れる ==
-                         // 金になるので、敵玉の升に敵の金をおいた利きに成りで移動すると王手になる。
+          silverEffect);  // 移動先が敵陣 == 成れる ==
+                          // 金になるので、敵玉の升に敵の金をおいた利きに成りで移動すると王手になる。
       FOREACH(
           goldEffect(them, ksq),
           enemy_field(Us) &
-              silverEffect); // 移動元が敵陣 == 成れる ==
-                             // 金になるので、敵玉の升に敵の金をおいた利きに成りで移動すると王手になる。
+              silverEffect);  // 移動元が敵陣 == 成れる ==
+                              // 金になるので、敵玉の升に敵の金をおいた利きに成りで移動すると王手になる。
       CheckCandidateBB[ksq][SILVER - 1][Us] = target & ~Bitboard(ksq);
 
       // 金
@@ -708,10 +689,10 @@ void Bitboards::init() {
       target = ZERO_BB;
       FOREACH_BR(bishopEffect(ksq, ZERO_BB), bishopEffect);
       FOREACH_BR(kingEffect(ksq) & enemy_field(Us),
-                 bishopEffect); // 移動先が敵陣 == 成れる == 王の動き
+                 bishopEffect);  // 移動先が敵陣 == 成れる == 王の動き
       FOREACH_BR(kingEffect(ksq),
                  enemy_field(Us) &
-                     bishopEffect); // 移動元が敵陣 == 成れる == 王の動き
+                     bishopEffect);  // 移動元が敵陣 == 成れる == 王の動き
       CheckCandidateBB[ksq][BISHOP - 1][Us] = target & ~Bitboard(ksq);
 
       // 飛・龍は無条件全域。

@@ -1,10 +1,10 @@
 #ifndef _SEARCH_H_
 #define _SEARCH_H_
 
-#include "misc.h"
-#include "position.h"
 #include <vector>
 
+#include "misc.h"
+#include "position.h"
 
 namespace Search {
 // root(探索開始局面)での指し手として使われる。それぞれのroot moveに対して、
@@ -94,6 +94,6 @@ void start_thinking(const Position &rootPos, StateListPtr &states,
 
 // 探索本体
 void search(Position &rootPos);
-} // namespace Search
+}  // namespace Search
 
-#endif // !SEARCH_H_
+#endif  // !SEARCH_H_

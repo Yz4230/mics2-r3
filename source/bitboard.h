@@ -354,7 +354,7 @@ extern const int RookShiftBits[SQ_NB];
 extern const u32 RookMagic[SQ_NB];
 extern const u32 BishopMagic[SQ_NB];
 
-#endif // !defined(USE_MAGIC_BITBOARD)
+#endif  // !defined(USE_MAGIC_BITBOARD)
 
 // --------------------
 //   大駒・小駒の利き
@@ -534,7 +534,7 @@ inline Bitboard rookRankEffect(Square sq, const Bitboard &occupied) {
   return rookEffect(sq, occupied) & RANK_BB[rank_of(sq)];
 }
 
-#endif // !defined(USE_MAGIC_BITBOARD)
+#endif  // !defined(USE_MAGIC_BITBOARD)
 
 // --- 馬と龍
 
@@ -572,7 +572,6 @@ inline bool more_than_one(const Bitboard &bb) { return POPCNT32(bb.p) > 1; }
 // bbは破壊しないものとする。
 template <typename T>
 FORCE_INLINE void foreachBB(Bitboard &bb, Square &sq, T t) {
-
   u64 p_ = bb.p;
   while (p_) {
     sq = (Square)pop_lsb(p_);
@@ -580,4 +579,4 @@ FORCE_INLINE void foreachBB(Bitboard &bb, Square &sq, T t) {
   }
 }
 
-#endif // #ifndef _BITBOARD_H_
+#endif  // #ifndef _BITBOARD_H_

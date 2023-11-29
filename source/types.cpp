@@ -65,8 +65,7 @@ std::ostream &operator<<(std::ostream &os, Color c) {
 
 std::ostream &operator<<(std::ostream &os, Piece pc) {
   auto s = usi_piece(pc);
-  if (s[1] == ' ')
-    s.resize(1); // 手動trim
+  if (s[1] == ' ') s.resize(1);  // 手動trim
   os << s;
   return os;
 }
@@ -93,8 +92,7 @@ std::string pretty(Piece pc) {
     result = (color_of(pc) == BLACK) ? "\x1b[32;40;1m" : "\x1b[33;40;1m";
   result += pretty_jp ? USI_PIECE_KANJI[pc]
                       : std::string(USI_PIECE).substr(pc * 2, 2);
-  if (pc != NO_PIECE)
-    result += "\x1b[39;0m";
+  if (pc != NO_PIECE) result += "\x1b[39;0m";
   return result;
 #endif
 }
@@ -117,7 +115,7 @@ std::ostream &operator<<(std::ostream &os, Hand hand) {
 std::string to_usi_string(RepetitionState rs) {
   return ((rs == REPETITION_NONE)
               ? "rep_none"
-              : // これはデバッグ用であり、実際には出力はしない。
+              :  // これはデバッグ用であり、実際には出力はしない。
               (rs == REPETITION_WIN)    ? "rep_win"
           : (rs == REPETITION_LOSE)     ? "rep_lose"
           : (rs == REPETITION_DRAW)     ? "rep_draw"
@@ -134,12 +132,12 @@ std::ostream &operator<<(std::ostream &os, RepetitionState rs) {
 
 // 引き分け時のスコア(とそのdefault値)
 Value drawValueTable[REPETITION_NB][COLOR_NB] = {
-    {VALUE_ZERO, VALUE_ZERO},           // REPETITION_NONE
-    {VALUE_MATE, VALUE_MATE},           // REPETITION_WIN
-    {-VALUE_MATE, -VALUE_MATE},         // REPETITION_LOSE
-    {VALUE_ZERO, VALUE_ZERO},           // REPETITION_DRAW
-    {VALUE_SUPERIOR, VALUE_SUPERIOR},   // REPETITION_SUPERIOR
-    {-VALUE_SUPERIOR, -VALUE_SUPERIOR}, // REPETITION_INFERIOR
+    {VALUE_ZERO, VALUE_ZERO},            // REPETITION_NONE
+    {VALUE_MATE, VALUE_MATE},            // REPETITION_WIN
+    {-VALUE_MATE, -VALUE_MATE},          // REPETITION_LOSE
+    {VALUE_ZERO, VALUE_ZERO},            // REPETITION_DRAW
+    {VALUE_SUPERIOR, VALUE_SUPERIOR},    // REPETITION_SUPERIOR
+    {-VALUE_SUPERIOR, -VALUE_SUPERIOR},  // REPETITION_INFERIOR
 };
 
 #if defined(USE_GLOBAL_OPTIONS)

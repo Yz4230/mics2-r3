@@ -41,8 +41,7 @@ Value evaluate(const Position &pos) {
   auto score = VALUE_ZERO;
 
   // 持ち駒の評価
-  for (Square sq : SQ)
-    score += PieceValue[pos.piece_on(sq)];
+  for (Square sq : SQ) score += PieceValue[pos.piece_on(sq)];
 
   // 局面の評価
   for (Color c : COLOR)
@@ -54,4 +53,4 @@ Value evaluate(const Position &pos) {
   return pos.side_to_move() == BLACK ? score : -score;
 }
 
-} // namespace Eval
+}  // namespace Eval

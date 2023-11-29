@@ -24,6 +24,6 @@ enum {
 extern int PieceValue[PIECE_NB];
 
 Value evaluate(const Position &pos);
-} // namespace Eval
+}  // namespace Eval
 
 #endif

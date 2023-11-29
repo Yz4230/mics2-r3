@@ -1,9 +1,10 @@
+#include "search.h"
+
 #include <algorithm>
 #include <thread>
 
 #include "evaluate.h"
 #include "misc.h"
-#include "search.h"
 #include "usi.h"
 
 struct MovePicker {
@@ -16,12 +17,11 @@ struct MovePicker {
   }
 
   Move nextMove() {
-    if (currentMoves == endMoves)
-      return MOVE_NONE;
+    if (currentMoves == endMoves) return MOVE_NONE;
     return *currentMoves++;
   }
 
-private:
+ private:
   const Position &pos;
   ExtMove moves[MAX_MOVES], *currentMoves = moves, *endMoves = moves;
 };
@@ -39,7 +39,7 @@ uint64_t Nodes;
 // 探索中にこれがtrueになったら探索を即座に終了すること。
 bool Stop;
 
-} // namespace Search
+}  // namespace Search
 
 // 起動時に呼び出される。時間のかからない探索関係の初期化処理はここに書くこと。
 void Search::init() {}
@@ -61,8 +61,7 @@ void Search::start_thinking(const Position &rootPos, StateListPtr &states,
   Nodes = 0;
   Stop = false;
 
-  for (Move move : MoveList<LEGAL_ALL>(rootPos))
-    rootMoves.emplace_back(move);
+  for (Move move : MoveList<LEGAL_ALL>(rootPos)) rootMoves.emplace_back(move);
 
   ASSERT_LV3(states.get());
 
@@ -132,8 +131,7 @@ END:;
 // ネガマックス法(nega-max method)
 Value search(Position &pos, int depth, int ply_from_root) {
   // 末端では評価関数を呼び出す
-  if (depth <= 0)
-    return Eval::evaluate(pos);
+  if (depth <= 0) return Eval::evaluate(pos);
 
   // 初期値はマイナス∞
   Value maxValue = -VALUE_INFINITE;
@@ -157,18 +155,15 @@ Value search(Position &pos, int depth, int ply_from_root) {
     pos.undo_move(m.move);
 
     // 探索の終了
-    if (Search::Stop)
-      return VALUE_ZERO;
+    if (Search::Stop) return VALUE_ZERO;
 
     // 局面評価値の更新
-    if (value > maxValue)
-      maxValue = value;
+    if (value > maxValue) maxValue = value;
   }
 
   // 合法手の数が 0 のとき詰んでいる
   // 詰みのスコアを返す
-  if (moveCount == 0)
-    return mated_in(ply_from_root);
+  if (moveCount == 0) return mated_in(ply_from_root);
 
   // 最も良い評価値を返す
   return maxValue;

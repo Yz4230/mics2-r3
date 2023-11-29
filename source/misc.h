@@ -61,7 +61,10 @@ struct PRNG {
   }
 
   // 乱数を一つ取り出す。
-  template <typename T> T rand() { return T(rand64()); }
+  template <typename T>
+  T rand() {
+    return T(rand64());
+  }
 
   // 0からn-1までの乱数を返す。(一様分布ではないが現実的にはこれで十分)
   u64 rand(u64 n) { return rand<u64>() % n; }
@@ -69,7 +72,7 @@ struct PRNG {
   // 内部で使用している乱数seedを返す。
   u64 get_seed() const { return s; }
 
-private:
+ private:
   u64 s;
   u64 rand64() {
     s ^= s >> 12, s ^= s << 25, s ^= s >> 27;
@@ -95,7 +98,7 @@ struct Timer {
   // 探索node数に縛りがある場合、elapsed()で探索node数が返ってくる仕様にすることにより、一元管理できる。
   TimePoint elapsed() const;
 
-private:
+ private:
   // 探索開始時間
   TimePoint startTime;
 };

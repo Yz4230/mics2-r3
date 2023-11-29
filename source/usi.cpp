@@ -1,12 +1,11 @@
 #include "usi.h"
-#include "evaluate.h"
-#include "misc.h"
-#include "search.h"
-
 
 #include <queue>
 #include <sstream>
 
+#include "evaluate.h"
+#include "misc.h"
+#include "search.h"
 
 using namespace std;
 
@@ -39,10 +38,8 @@ void position_cmd(Position &pos, istringstream &is, StateListPtr &states) {
   // 局面がsfen形式で指定されているなら、その局面を読み込む。
   // 文字列"sfen"は省略可能。
   else {
-    if (token != "sfen")
-      sfen += token += " ";
-    while (is >> token && token != "moves")
-      sfen += token += " ";
+    if (token != "sfen") sfen += token += " ";
+    while (is >> token && token != "moves") sfen += token += " ";
   }
 
   // 新しく渡す局面なので古いものは捨てて新しいものを作る。
@@ -52,7 +49,7 @@ void position_cmd(Position &pos, istringstream &is, StateListPtr &states) {
   while (is >> token && (m = USI::to_move(pos, token)) != MOVE_NONE) {
     // 1手進めるごとにStateInfoが積まれていく。これは千日手の検出のために必要。
     states->emplace_back();
-    if (m == MOVE_NULL) // do_move に MOVE_NULL を与えると死ぬので
+    if (m == MOVE_NULL)  // do_move に MOVE_NULL を与えると死ぬので
       pos.do_null_move(states->back());
     else
       pos.do_move(m, states->back());
@@ -128,10 +125,8 @@ void USI::loop(int argc, char *argv[]) {
     string s = argv[i];
 
     // sから前後のスペースを除去しないといけない。
-    while (*s.rbegin() == ' ')
-      s.pop_back();
-    while (*s.begin() == ' ')
-      s = s.substr(1, s.size() - 1);
+    while (*s.rbegin() == ' ') s.pop_back();
+    while (*s.begin() == ' ') s = s.substr(1, s.size() - 1);
 
     if (s != ",")
       cmd += s + " ";
@@ -140,12 +135,11 @@ void USI::loop(int argc, char *argv[]) {
       cmd = "";
     }
   }
-  if (cmd.size() != 0)
-    cmds.push(cmd);
+  if (cmd.size() != 0) cmds.push(cmd);
 
   do {
     if (cmds.size() == 0) {
-      if (!std::getline(cin, cmd)) // 入力が来るかEOFがくるまでここで待機する。
+      if (!std::getline(cin, cmd))  // 入力が来るかEOFがくるまでここで待機する。
         cmd = "quit";
     } else {
       cmd = cmds.front();
@@ -195,8 +189,7 @@ void USI::loop(int argc, char *argv[]) {
 
     // この局面での指し手をすべて出力
     else if (token == "moves") {
-      for (auto m : MoveList<LEGAL_ALL>(pos))
-        cout << m.move << ' ';
+      for (auto m : MoveList<LEGAL_ALL>(pos)) cout << m.move << ' ';
       cout << endl;
     }
 
@@ -217,8 +210,7 @@ void USI::loop(int argc, char *argv[]) {
       user_test(pos, is);
 
     else {
-      if (!token.empty())
-        cout << "No such option: " << token << endl;
+      if (!token.empty()) cout << "No such option: " << token << endl;
     }
 
   } while (token != "quit");
@@ -233,18 +225,15 @@ std::string USI::pv(const Position &pos, int depth) {
 
   bool updated = rootMoves[0].score != VALUE_INFINITE;
 
-  if (depth == 1 && !updated)
-    goto END;
+  if (depth == 1 && !updated) goto END;
 
   {
     int d = updated ? depth : depth - 1;
     Value v = updated ? rootMoves[0].score : rootMoves[0].previousScore;
 
-    if (v == -VALUE_INFINITE)
-      goto END;
+    if (v == -VALUE_INFINITE) goto END;
 
-    if (ss.rdbuf()->in_avail())
-      ss << endl;
+    if (ss.rdbuf()->in_avail()) ss << endl;
 
     ss << "info"
        << " depth " << d << " seldepth " << rootMoves[0].selDepth << " score "
@@ -292,22 +281,18 @@ std::string USI::move(Move m) {
   } else {
     ss << move_from(m);
     ss << move_to(m);
-    if (is_promote(m))
-      ss << '+';
+    if (is_promote(m)) ss << '+';
   }
   return ss.str();
 }
 
 Move USI::to_move(const Position &pos, const std::string &str) {
-  if (str == "resign")
-    return MOVE_RESIGN;
+  if (str == "resign") return MOVE_RESIGN;
 
-  if (str == "null")
-    return MOVE_NULL;
+  if (str == "null") return MOVE_NULL;
 
   for (const ExtMove &ms : MoveList<LEGAL_ALL>(pos))
-    if (str == move(ms.move))
-      return ms.move;
+    if (str == move(ms.move)) return ms.move;
 
   return MOVE_NONE;
 }

@@ -1,10 +1,10 @@
 // #include "position.h"
-#include "search.h"
-
 #include <cstring>
 #include <iostream>
 #include <sstream>
 #include <stack>
+
+#include "search.h"
 
 using namespace std;
 
@@ -15,14 +15,15 @@ Key zero;
 Key side;
 Key psq[SQ_NB][PIECE_NB];
 Key hand[COLOR_NB][PIECE_HAND_NB];
-} // namespace Zobrist
+}  // namespace Zobrist
 
 // ----------------------------------
 //           CheckInfo
 // ----------------------------------
 
 // 王手情報の初期化
-template <bool doNullMove> void Position::set_check_info(StateInfo *si) const {
+template <bool doNullMove>
+void Position::set_check_info(StateInfo *si) const {
   if (!doNullMove) {
     // null
     // moveのときは前の局面でこの情報は設定されているので更新する必要がない。
@@ -55,11 +56,11 @@ template <bool doNullMove> void Position::set_check_info(StateInfo *si) const {
 //       Zorbrist keyの初期化
 // ----------------------------------
 
-#define SET_HASH(x, p0, p1, p2, p3)                                            \
-  {                                                                            \
-    x = (p0);                                                                  \
-    auto dummy_func = [](u64, u64, u64) {};                                    \
-    dummy_func(p1, p2, p3);                                                    \
+#define SET_HASH(x, p0, p1, p2, p3)         \
+  {                                         \
+    x = (p0);                               \
+    auto dummy_func = [](u64, u64, u64) {}; \
+    dummy_func(p1, p2, p3);                 \
   }
 
 void Position::init() {
@@ -101,8 +102,7 @@ void Position::set(std::string sfen, StateInfo *si) {
 
   while ((ss >> token) && !isspace(token)) {
     // 数字は、空の升の数なのでその分だけ筋(File)を進める
-    if (isdigit(token))
-      f -= File(token - '0');
+    if (isdigit(token)) f -= File(token - '0');
     // '/'は次の段を意味する
     else if (token == '/') {
       f = FILE_5;
@@ -136,7 +136,7 @@ void Position::set(std::string sfen, StateInfo *si) {
 
   ss >> token;
   sideToMove = (token == 'w' ? WHITE : BLACK);
-  ss >> token; // 手番と手駒とを分割スペース
+  ss >> token;  // 手番と手駒とを分割スペース
 
   // --- 手駒
 
@@ -144,8 +144,7 @@ void Position::set(std::string sfen, StateInfo *si) {
   int ct = 0;
   while ((ss >> token) && !isspace(token)) {
     // 手駒なし
-    if (token == '-')
-      break;
+    if (token == '-') break;
 
     if (isdigit(token))
       // 駒の枚数。
@@ -169,8 +168,7 @@ void Position::set(std::string sfen, StateInfo *si) {
 
   // --- validation
 #if ASSERT_LV >= 3
-  if (!is_ok(*this))
-    std::cout << "info string Illigal Position?" << endl;
+  if (!is_ok(*this)) std::cout << "info string Illigal Position?" << endl;
 #endif
 }
 
@@ -189,17 +187,14 @@ const std::string Position::sfen() const {
         ++emptyCnt;
 
       // 駒のなかった升の数を出力
-      if (emptyCnt)
-        ss << emptyCnt;
+      if (emptyCnt) ss << emptyCnt;
 
       // 駒があったなら、それに対応する駒文字列を出力
-      if (f >= FILE_1)
-        ss << piece_on(f | r);
+      if (f >= FILE_1) ss << piece_on(f | r);
     }
 
     // 最下段以外では次の行があるのでセパレーターである'/'を出力する。
-    if (r < RANK_5)
-      ss << '/';
+    if (r < RANK_5) ss << '/';
   }
 
   // --- 手番
@@ -222,8 +217,7 @@ const std::string Position::sfen() const {
         found = true;
 
         // その種類の駒の枚数。1ならば出力を省略
-        if (n != 1)
-          ss << n;
+        if (n != 1) ss << n;
 
         ss << PieceToCharBW[make_piece(c, p)];
       }
@@ -259,7 +253,7 @@ void Position::set_state(StateInfo *si) const {
       si->hand_key_ +=
           Zobrist::hand[c][pr] *
           (int64_t)hand_count(hand[c],
-                              pr); // 手駒はaddにする(差分計算が楽になるため)
+                              pr);  // 手駒はaddにする(差分計算が楽になるため)
 
   // --- hand
   si->hand = hand[sideToMove];
@@ -299,8 +293,7 @@ void Position::update_kingSquare() {
 // 局面を出力する。(USI形式ではない) デバッグ用。
 std::ostream &operator<<(std::ostream &os, const Position &pos) {
   for (Rank r = RANK_1; r <= RANK_5; ++r) {
-    for (File f = FILE_5; f >= FILE_1; --f)
-      os << pretty(pos.board[f | r]);
+    for (File f = FILE_5; f >= FILE_1; --f) os << pretty(pos.board[f | r]);
     os << endl;
   }
 
@@ -393,7 +386,7 @@ Bitboard Position::attackers_to(Color c, Square sq, const Bitboard &occ) const {
           (goldEffect(them, sq) & pieces(GOLDS_HDK)) |
           (bishopEffect(sq, occ) & pieces(BISHOP_HORSE)) |
           (rookEffect(sq, occ) & pieces(ROOK_DRAGON))) &
-         pieces(c); // 先後混在しているのでc側の駒だけ最後にマスクする。
+         pieces(c);  // 先後混在しているのでc側の駒だけ最後にマスクする。
 }
 
 // sに利きのあるc側の駒を列挙する。先後両方。
@@ -447,8 +440,7 @@ bool Position::gives_check(Move m) const {
 
   const Square to = move_to(m);
 
-  if (st->checkSquares[type_of(moved_piece_after(m))] & to)
-    return true;
+  if (st->checkSquares[type_of(moved_piece_after(m))] & to) return true;
 
   const Square from = move_from(m);
 
@@ -473,8 +465,7 @@ bool Position::legal_drop(const Square to) const {
   ASSERT_LV3(pawnEffect(us, to) == Bitboard(king_square(~us)));
 
   // この歩に利いている自駒(歩を打つほうの駒)がなければ詰みには程遠いのでtrue
-  if (!effected_to(us, to))
-    return true;
+  if (!effected_to(us, to)) return true;
 
   // ここに利いている敵の駒があり、その駒で取れるなら打ち歩詰めではない
   Bitboard b = attackers_to_pawn(~us, to);
@@ -483,8 +474,7 @@ bool Position::legal_drop(const Square to) const {
   Bitboard pinned = blockers_for_king(~us);
 
   // pinされていない駒が1つでもあるなら、相手はその駒で取って何事もない。
-  if (b & (~pinned | FILE_BB[file_of(to)]))
-    return true;
+  if (b & (~pinned | FILE_BB[file_of(to)])) return true;
 
   // 玉の退路を探す
   // 自駒がなくて、かつ、to(はすでに調べたので)以外の地点
@@ -496,11 +486,11 @@ bool Position::legal_drop(const Square to) const {
   escape_bb ^= to;
   auto occ =
       pieces() ^
-      to; // toには歩をおく前提なので、ここには駒があるものとして、これでの利きの遮断は考えないといけない。
+      to;  // toには歩をおく前提なので、ここには駒があるものとして、これでの利きの遮断は考えないといけない。
   while (escape_bb) {
     Square king_to = escape_bb.pop();
     if (!attackers_to(us, king_to, occ))
-      return true; // 退路が見つかったので打ち歩詰めではない。
+      return true;  // 退路が見つかったので打ち歩詰めではない。
   }
 
   // すべての検査を抜けてきたのでこれは打ち歩詰めの条件を満たしている。
@@ -508,9 +498,10 @@ bool Position::legal_drop(const Square to) const {
 }
 
 // mがこの局面においてpseudo_legalかどうかを判定するための関数。
-template <bool All> bool Position::pseudo_legal_s(const Move m) const {
+template <bool All>
+bool Position::pseudo_legal_s(const Move m) const {
   const Color us = sideToMove;
-  const Square to = move_to(m); // 移動先
+  const Square to = move_to(m);  // 移動先
 
   if (is_drop(m)) {
     const Piece pr = move_dropped_piece(m);
@@ -522,8 +513,7 @@ template <bool All> bool Position::pseudo_legal_s(const Move m) const {
     ASSERT_LV3(PAWN <= pr && pr < KING);
 
     // 打つ先の升が埋まっていたり、その手駒を持っていなかったりしたら駄目。
-    if (piece_on(to) != NO_PIECE || hand_count(hand[us], pr) == 0)
-      return false;
+    if (piece_on(to) != NO_PIECE || hand_count(hand[us], pr) == 0) return false;
 
     if (in_check()) {
       // 王手されている局面なので合駒でなければならない
@@ -532,18 +522,15 @@ template <bool All> bool Position::pseudo_legal_s(const Move m) const {
 
       // 王手している駒を1個取り除いて、もうひとつあるということは王手している駒が
       // 2つあったということであり、両王手なので合い利かず。
-      if (target)
-        return false;
+      if (target) return false;
 
       // 王と王手している駒との間の升に駒を打っていない場合、それは王手を回避していることに
       // ならないので、これは非合法手。
-      if (!(between_bb(checksq, king_square(us)) & to))
-        return false;
+      if (!(between_bb(checksq, king_square(us)) & to)) return false;
     }
 
     // 歩のとき、二歩および打ち歩詰めであるなら非合法手
-    if (pr == PAWN && !legal_pawn_drop(us, to))
-      return false;
+    if (pr == PAWN && !legal_pawn_drop(us, to)) return false;
 
     // 打てない段に打つ歩はそもそも生成されていない。
 
@@ -552,16 +539,13 @@ template <bool All> bool Position::pseudo_legal_s(const Move m) const {
     const Piece pc = piece_on(from);
 
     // 動かす駒が自駒でなければならない
-    if (pc == NO_PIECE || color_of(pc) != us)
-      return false;
+    if (pc == NO_PIECE || color_of(pc) != us) return false;
 
     // toに移動できないといけない。
-    if (!(effects_from(pc, from, pieces()) & to))
-      return false;
+    if (!(effects_from(pc, from, pieces()) & to)) return false;
 
     // toの地点に自駒があるといけない
-    if (pieces(us) & to)
-      return false;
+    if (pieces(us) & to) return false;
 
     Piece pt = type_of(pc);
     if (is_promote(m)) {
@@ -569,16 +553,13 @@ template <bool All> bool Position::pseudo_legal_s(const Move m) const {
 
       // 成れない駒の成りではないことを確かめないといけない。
       static_assert(GOLD == 7, "GOLD must be 7.");
-      if (pt >= GOLD)
-        return false;
+      if (pt >= GOLD) return false;
 
-      if (moved_piece_after(m) != pc + PIECE_PROMOTE)
-        return false;
+      if (moved_piece_after(m) != pc + PIECE_PROMOTE) return false;
     } else {
       // --- 成らない指し手
 
-      if (moved_piece_after(m) != pc)
-        return false;
+      if (moved_piece_after(m) != pc) return false;
 
       // 駒打ちのところに書いた理由により、不成で進めない升への指し手のチェックも不要。
       // 間違い　→　駒種をmoveに含めていないならこのチェック必要だわ。
@@ -599,19 +580,17 @@ template <bool All> bool Position::pseudo_legal_s(const Move m) const {
         // 歩の不成と香の2段目への不成を禁止。
         // 大駒の不成を禁止
         switch (pt) {
-        case PAWN:
-          if (enemy_field(us) & to)
-            return false;
-          break;
+          case PAWN:
+            if (enemy_field(us) & to) return false;
+            break;
 
-        case BISHOP:
-        case ROOK:
-          if (enemy_field(us) & (Bitboard(from) | Bitboard(to)))
-            return false;
-          break;
+          case BISHOP:
+          case ROOK:
+            if (enemy_field(us) & (Bitboard(from) | Bitboard(to))) return false;
+            break;
 
-        default:
-          break;
+          default:
+            break;
         }
       }
     }
@@ -623,8 +602,7 @@ template <bool All> bool Position::pseudo_legal_s(const Move m) const {
       // 動かす駒は王以外か？
       if (type_of(pc) != KING) {
         // 両王手なら王の移動をさせなければならない。
-        if (more_than_one(checkers()))
-          return false;
+        if (more_than_one(checkers())) return false;
 
         // 指し手は、王手を遮断しているか、王手している駒の捕獲でなければならない。
         // ※　王手している駒と王の間に王手している駒の升を足した升が駒の移動先であるか。
@@ -817,7 +795,6 @@ void Position::do_move_impl(Move m, StateInfo &new_st, bool givesCheck) {
       st->continuousCheck[Us] = prev->continuousCheck[Us] + 2;
 
     } else {
-
       st->checkersBB = ZERO_BB;
       st->continuousCheck[Us] = 0;
     }
@@ -839,7 +816,8 @@ void Position::do_move_impl(Move m, StateInfo &new_st, bool givesCheck) {
 }
 
 // 指し手で盤面を1手戻す。do_move()の逆変換。
-template <Color Us> void Position::undo_move_impl(Move m) {
+template <Color Us>
+void Position::undo_move_impl(Move m) {
   // Usは1手前の局面での手番(に呼び出し元でしてある)
 
   auto to = move_to(m);
@@ -864,7 +842,6 @@ template <Color Us> void Position::undo_move_impl(Move m) {
     remove_piece(to);
 
   } else {
-
     // --- 通常の指し手
 
     auto from = move_from(m);
@@ -889,8 +866,7 @@ template <Color Us> void Position::undo_move_impl(Move m) {
       put_piece(from, moved_pc);
     }
 
-    if (type_of(moved_pc) == KING)
-      kingSquare[Us] = from;
+    if (type_of(moved_pc) == KING) kingSquare[Us] = from;
   }
 
   // put_piece()などを使ったのでbitboardを更新する。
@@ -898,7 +874,7 @@ template <Color Us> void Position::undo_move_impl(Move m) {
   update_bitboards();
 
   // --- 相手番に変更
-  sideToMove = Us; // Usは先後入れ替えて呼び出されているはず。
+  sideToMove = Us;  // Usは先後入れ替えて呼び出されているはず。
 
   // --- StateInfoを巻き戻す
   st = st->previous;
@@ -918,7 +894,7 @@ void Position::do_move(Move m, StateInfo &newSt, bool givesCheck) {
 void Position::undo_move(Move m) {
   if (sideToMove == BLACK)
     undo_move_impl<WHITE>(
-        m); // 1手前の手番が返らないとややこしいので入れ替えておく。
+        m);  // 1手前の手番が返らないとややこしいので入れ替えておく。
   else
     undo_move_impl<BLACK>(m);
 }
@@ -966,8 +942,7 @@ RepetitionState Position::is_repetition(int repPly /* = 16 */) const {
   int end = std::min(repPly, st->pliesFromNull);
 
   // 少なくとも4手かけないと千日手にはならないから、4手前から調べていく。
-  if (end < 4)
-    return REPETITION_NONE;
+  if (end < 4) return REPETITION_NONE;
 
   StateInfo *stp = st->previous->previous;
 
@@ -980,22 +955,18 @@ RepetitionState Position::is_repetition(int repPly /* = 16 */) const {
       // 手駒が一致するなら同一局面である。(2手ずつ遡っているので手番は同じである)
       if (stp->hand == st->hand) {
         // 自分が王手をしている連続王手の千日手なのか？
-        if (i <= st->continuousCheck[sideToMove])
-          return REPETITION_LOSE;
+        if (i <= st->continuousCheck[sideToMove]) return REPETITION_LOSE;
 
         // 相手が王手をしている連続王手の千日手なのか？
-        if (i <= st->continuousCheck[~sideToMove])
-          return REPETITION_WIN;
+        if (i <= st->continuousCheck[~sideToMove]) return REPETITION_WIN;
 
         // 先手側の負け
-        if (sideToMove == BLACK)
-          return REPETITION_LOSE;
+        if (sideToMove == BLACK) return REPETITION_LOSE;
 
         // 後手側の勝ち
-        if (sideToMove == WHITE)
-          return REPETITION_WIN;
+        if (sideToMove == WHITE) return REPETITION_WIN;
 
-        return REPETITION_DRAW; // error
+        return REPETITION_DRAW;  // error
       } else {
         // 優等局面か劣等局面であるか。(手番が相手番になっている場合はいま考えない)
         if (hand_is_equal_or_superior(st->hand, stp->hand))
@@ -1035,13 +1006,11 @@ bool Position::pos_is_ok() const {
       ptc[pr] += ct;
     }
 
-  if (count != 12)
-    return false;
+  if (count != 12) return false;
 
   // 2) それぞれの駒の枚数は合っているか
   for (Piece pt = PIECE_ZERO; pt < KING; ++pt)
-    if (ptc[pt] != ptc0[pt])
-      return false;
+    if (ptc[pt] != ptc0[pt]) return false;
 #endif
 
   // 3) 王手している駒
@@ -1049,8 +1018,7 @@ bool Position::pos_is_ok() const {
     return false;
 
   // 4) 相手玉が取れるということはないか
-  if (effected_to(sideToMove, king_square(~sideToMove)))
-    return false;
+  if (effected_to(sideToMove, king_square(~sideToMove))) return false;
 
   // 5) occupied bitboardは合っているか
   if ((pieces() != (pieces(BLACK) | pieces(WHITE))) ||
@@ -1058,8 +1026,7 @@ bool Position::pos_is_ok() const {
     return false;
 
   // 6) 王手している駒は敵駒か
-  if (checkers() & pieces(side_to_move()))
-    return false;
+  if (checkers() & pieces(side_to_move())) return false;
 
   // 二歩のチェックなど云々かんぬん..面倒くさいので省略。
 

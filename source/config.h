@@ -70,10 +70,9 @@
 // USE_DEBUG_ASSERTが有効なときには、ASSERTの内容を出力したあと、3秒待ってから
 // アクセス違反になるようなコードを実行する。
 #if !defined(USE_DEBUG_ASSERT)
-#define ASSERT(X)    \
-  {                  \
-    if (!(X))        \
-      *(int *)1 = 0; \
+#define ASSERT(X)            \
+  {                          \
+    if (!(X)) *(int *)1 = 0; \
   }
 #else
 #include <chrono>
@@ -82,8 +81,7 @@
 
 #define ASSERT(X)                                                        \
   {                                                                      \
-    if (!(X))                                                            \
-    {                                                                    \
+    if (!(X)) {                                                          \
       std::cout << "\nError : ASSERT(" << #X << "), " << __FILE__ << "(" \
                 << __LINE__ << "): " << __func__ << std::endl;           \
       std::this_thread::sleep_for(std::chrono::microseconds(3000));      \
@@ -92,10 +90,9 @@
   }
 #endif
 
-#define ASSERT_LV_EX(L, X) \
-  {                        \
-    if (L <= ASSERT_LV)    \
-      ASSERT(X);           \
+#define ASSERT_LV_EX(L, X)         \
+  {                                \
+    if (L <= ASSERT_LV) ASSERT(X); \
   }
 #define ASSERT_LV1(X) ASSERT_LV_EX(1, X)
 #define ASSERT_LV2(X) ASSERT_LV_EX(2, X)
@@ -134,8 +131,9 @@ constexpr bool pretty_jp = false;
 // ----------------------------
 
 // ターゲットが64bitOSかどうか
-#if (defined(_WIN64) && defined(_MSC_VER)) || \
-    (defined(__GNUC__) && (defined(__x86_64__) || defined(__aarch64__))) || defined(IS_64BIT)
+#if (defined(_WIN64) && defined(_MSC_VER)) ||                               \
+    (defined(__GNUC__) && (defined(__x86_64__) || defined(__aarch64__))) || \
+    defined(IS_64BIT)
 constexpr bool Is64Bit = true;
 #ifndef IS_64BIT
 #define IS_64BIT

@@ -14,12 +14,12 @@
 
 // あまりたくさんここに書くとコンパイルが遅くなるので書きたくないのだが…。
 
-#include "extra/bitop.h"
+#include <algorithm>  // std::max()を使うので仕方ない
+#include <climits>    // INT_MAXがこのheaderで必要なので仕方ない
+#include <iostream>   // iostreamに対する<<使うので仕方ない
+#include <string>     // std::string使うので仕方ない
 
-#include <algorithm> // std::max()を使うので仕方ない
-#include <climits>   // INT_MAXがこのheaderで必要なので仕方ない
-#include <iostream>  // iostreamに対する<<使うので仕方ない
-#include <string>    // std::string使うので仕方ない
+#include "extra/bitop.h"
 
 // --------------------
 //      手番
@@ -163,20 +163,20 @@ enum Square : int32_t {
 
   // 方角に関する定数。StockfishだとNORTH=北=盤面の下を意味するようだが、
   // わかりにくいのでやねうら王ではストレートな命名に変更する。
-  SQ_D = +1, // 下(Down)
-  SQ_R = -5, // 右(Right)
-  SQ_U = -1, // 上(Up)
-  SQ_L = +5, // 左(Left)
+  SQ_D = +1,  // 下(Down)
+  SQ_R = -5,  // 右(Right)
+  SQ_U = -1,  // 上(Up)
+  SQ_L = +5,  // 左(Left)
 
   // 斜めの方角などを意味する定数。
-  SQ_RU = int(SQ_U) + int(SQ_R),   // 右上(Right Up)
-  SQ_RD = int(SQ_D) + int(SQ_R),   // 右下(Right Down)
-  SQ_LU = int(SQ_U) + int(SQ_L),   // 左上(Left Up)
-  SQ_LD = int(SQ_D) + int(SQ_L),   // 左下(Left Down)
-  SQ_RUU = int(SQ_RU) + int(SQ_U), // 右上上
-  SQ_LUU = int(SQ_LU) + int(SQ_U), // 左上上
-  SQ_RDD = int(SQ_RD) + int(SQ_D), // 右下下
-  SQ_LDD = int(SQ_LD) + int(SQ_D), // 左下下
+  SQ_RU = int(SQ_U) + int(SQ_R),    // 右上(Right Up)
+  SQ_RD = int(SQ_D) + int(SQ_R),    // 右下(Right Down)
+  SQ_LU = int(SQ_U) + int(SQ_L),    // 左上(Left Up)
+  SQ_LD = int(SQ_D) + int(SQ_L),    // 左下(Left Down)
+  SQ_RUU = int(SQ_RU) + int(SQ_U),  // 右上上
+  SQ_LUU = int(SQ_LU) + int(SQ_U),  // 左上上
+  SQ_RDD = int(SQ_RD) + int(SQ_D),  // 右下下
+  SQ_LDD = int(SQ_LD) + int(SQ_D),  // 左下下
 };
 
 // sqが盤面の内側を指しているかを判定する。assert()などで使う用。
@@ -381,7 +381,7 @@ constexpr SquareWithWall DirectToDeltaWW_[DIRECT_NB] = {
 constexpr SquareWithWall DirectToDeltaWW(Direct d) { /* ASSERT_LV3(is_ok(d)); */
   return DirectToDeltaWW_[d];
 }
-} // namespace Effect8
+}  // namespace Effect8
 
 // 与えられた3升が縦横斜めの1直線上にあるか。駒を移動させたときに開き王手になるかどうかを判定するのに使う。
 // 例) 王がsq1,
@@ -419,9 +419,9 @@ enum Value : int32_t {
   VALUE_NONE = 32002,
 
   VALUE_MATE_IN_MAX_PLY =
-      int(VALUE_MATE) - MAX_PLY, // MAX_PLYでの詰みのときのスコア。
+      int(VALUE_MATE) - MAX_PLY,  // MAX_PLYでの詰みのときのスコア。
   VALUE_MATED_IN_MAX_PLY =
-      -int(VALUE_MATE_IN_MAX_PLY), // MAX_PLYで詰まされるときのスコア。
+      -int(VALUE_MATE_IN_MAX_PLY),  // MAX_PLYで詰まされるときのスコア。
 
   // 千日手による優等局面への突入したときのスコア
   VALUE_SUPERIOR = 28000,
@@ -447,17 +447,17 @@ enum Piece : uint32_t {
   // KINGを8にしておく
   // 成りを求めるときは pc |= 8; で求まる
   NO_PIECE = 0,
-  PAWN = 1,        // 歩
-  SILVER = 4,      // 銀
-  BISHOP = 5,      // 角
-  ROOK = 6,        // 飛
-  GOLD = 7,        // 金
-  KING = 8,        // 玉
-  PRO_PAWN = 9,    // と
-  PRO_SILVER = 12, // 成銀
-  HORSE = 13,      // 馬
-  DRAGON = 14,     // 龍
-  QUEEN = 15,      // 未使用
+  PAWN = 1,         // 歩
+  SILVER = 4,       // 銀
+  BISHOP = 5,       // 角
+  ROOK = 6,         // 飛
+  GOLD = 7,         // 金
+  KING = 8,         // 玉
+  PRO_PAWN = 9,     // と
+  PRO_SILVER = 12,  // 成銀
+  HORSE = 13,       // 馬
+  DRAGON = 14,      // 龍
+  QUEEN = 15,       // 未使用
 
   // 先後の区別のある駒
   // B(先手), W(後手)
@@ -483,21 +483,21 @@ enum Piece : uint32_t {
   W_HORSE,
   W_DRAGON,
   W_QUEEN,
-  PIECE_NB, // 終端
+  PIECE_NB,  // 終端
   PIECE_ZERO = 0,
 
   // --- 特殊な定数
 
-  PIECE_PROMOTE = 8, // 成り駒と非成り駒との差(この定数を足すと成り駒になる)
-  PIECE_TYPE_NB = 16, // 駒種の数。(成りを含める)
-  PIECE_WHITE = 16, // これを先手の駒に加算すると後手の駒になる。
-  PIECE_RAW_NB = 8, // 非成駒の終端
+  PIECE_PROMOTE = 8,  // 成り駒と非成り駒との差(この定数を足すと成り駒になる)
+  PIECE_TYPE_NB = 16,  // 駒種の数。(成りを含める)
+  PIECE_WHITE = 16,  // これを先手の駒に加算すると後手の駒になる。
+  PIECE_RAW_NB = 8,  // 非成駒の終端
 
-  PIECE_HAND_ZERO = PAWN, // 手駒の開始位置
-  PIECE_HAND_NB = KING,   // 手駒になる駒種の最大+1
+  PIECE_HAND_ZERO = PAWN,  // 手駒の開始位置
+  PIECE_HAND_NB = KING,    // 手駒になる駒種の最大+1
 
   // --- Position::pieces()で用いる定数。空いてるところを順番に用いる。
-  ALL_PIECES = 0, // 駒がある升を示すBitboardが返る。
+  ALL_PIECES = 0,  // 駒がある升を示すBitboardが返る。
   GOLDS = QUEEN,  // 金と同じ移動特性を持つ駒のBitboardが返る。
   HDK,            // H=Horse,D=Dragon,K=Kingの合体したBitboardが返る。
   BISHOP_HORSE,   // BISHOP,HORSEを合成したBitboardが返る。
@@ -509,10 +509,10 @@ enum Piece : uint32_t {
   // 指し手生成(GeneratePieceMove =
   // GPM)でtemplateの引数として使うマーカー的な値。変更する可能性があるのでユーザーは使わないでください。
   // 連続的な値にしておくことで、テーブルジャンプしやすくする。
-  GPM_BR = 16,   // Bishop Rook
-  GPM_GBR = 17,  // Gold Bishop Rook
-  GPM_GHD = 18,  // Gold Horse Dragon
-  GPM_GHDK = 19, // Gold Horse Dragon King
+  GPM_BR = 16,    // Bishop Rook
+  GPM_GBR = 17,   // Gold Bishop Rook
+  GPM_GHD = 18,   // Gold Horse Dragon
+  GPM_GHDK = 19,  // Gold Horse Dragon King
 };
 
 // USIプロトコルで駒を表す文字列を返す。
@@ -538,9 +538,8 @@ constexpr Piece type_of(Piece pc) { return (Piece)(pc & 15); }
 constexpr Piece raw_type_of(Piece pc) { return (Piece)(pc & 7); }
 
 // pcとして先手の駒を渡し、cが後手なら後手の駒を返す。cが先手なら先手の駒のまま。pcとしてNO_PIECEは渡してはならない。
-constexpr Piece
-make_piece(Color c,
-           Piece pt) { /*ASSERT_LV3(color_of(pt) == BLACK && pt!=NO_PIECE); */
+constexpr Piece make_piece(
+    Color c, Piece pt) { /*ASSERT_LV3(color_of(pt) == BLACK && pt!=NO_PIECE); */
   return (Piece)((c << 4) + pt);
 }
 
@@ -578,18 +577,18 @@ std::ostream &operator<<(std::ostream &os, Piece pc);
 // 32bit形式の指し手の場合、上位16bitには、この指し手によってto(移動後の升)に来る駒。
 enum Move : uint32_t {
 
-  MOVE_NONE = 0, // 無効な移動
+  MOVE_NONE = 0,  // 無効な移動
 
   MOVE_NULL =
       (1 << 7) +
-      1, // NULL
-         // MOVEを意味する指し手。Square(1)からSquare(1)への移動は存在しないのでここを特殊な記号として使う。
+      1,  // NULL
+          // MOVEを意味する指し手。Square(1)からSquare(1)への移動は存在しないのでここを特殊な記号として使う。
   MOVE_RESIGN =
       (2 << 7) +
-      2, // << で出力したときに"resign"と表示する投了を意味する指し手。
+      2,  // << で出力したときに"resign"と表示する投了を意味する指し手。
 
-  MOVE_DROP = 1 << 14,    // 駒打ちフラグ
-  MOVE_PROMOTE = 1 << 15, // 駒成りフラグ
+  MOVE_DROP = 1 << 14,     // 駒打ちフラグ
+  MOVE_PROMOTE = 1 << 15,  // 駒成りフラグ
 };
 
 // 指し手の移動元の升を返す。
@@ -664,9 +663,8 @@ static std::ostream &operator<<(std::ostream &os, Move m) {
 // 指し手とオーダリングのためのスコアがペアになっている構造体。
 // オーダリングのときにスコアで並べ替えしたいが、一つになっているほうが並び替えがしやすいのでこうしてある。
 struct ExtMove {
-
-  Move move; // 指し手(32bit)
-  int value; // 指し手オーダリング(並び替え)のときのスコア(符号つき32bit)
+  Move move;  // 指し手(32bit)
+  int value;  // 指し手オーダリング(並び替え)のときのスコア(符号つき32bit)
 
   // Move型とは暗黙で変換できていい。
 
@@ -789,37 +787,37 @@ constexpr int MAX_MOVES = 600;
 enum MOVE_GEN_TYPE {
   // LEGAL/LEGAL_ALL以外は自殺手が含まれることがある(pseudo-legal)ので、do_moveの前にPosition::legal()でのチェックが必要。
 
-  NON_CAPTURES, // 駒を取らない指し手
-  CAPTURES,     // 駒を取る指し手
+  NON_CAPTURES,  // 駒を取らない指し手
+  CAPTURES,      // 駒を取る指し手
 
-  CAPTURES_PRO_PLUS, // CAPTURES + 価値のかなりあると思われる成り(歩だけ)
-  NON_CAPTURES_PRO_MINUS, // NON_CAPTURES -
-                          // 価値のかなりあると思われる成り(歩だけ)
+  CAPTURES_PRO_PLUS,  // CAPTURES + 価値のかなりあると思われる成り(歩だけ)
+  NON_CAPTURES_PRO_MINUS,  // NON_CAPTURES -
+                           // 価値のかなりあると思われる成り(歩だけ)
 
-  CAPTURES_PRO_PLUS_ALL,      // CAPTURES_PRO_PLUS + 角・飛の不成を含む
-  NON_CAPTURES_PRO_MINUS_ALL, // NON_CAPTURES_PRO_MINUS + 角・飛の不成を含む
+  CAPTURES_PRO_PLUS_ALL,  // CAPTURES_PRO_PLUS + 角・飛の不成を含む
+  NON_CAPTURES_PRO_MINUS_ALL,  // NON_CAPTURES_PRO_MINUS + 角・飛の不成を含む
 
-  EVASIONS, // 王手の回避(指し手生成元で王手されている局面であることがわかっているときはこちらを呼び出す)
-  EVASIONS_ALL, // EVASIONS + 歩の不成なども含む。
+  EVASIONS,  // 王手の回避(指し手生成元で王手されている局面であることがわかっているときはこちらを呼び出す)
+  EVASIONS_ALL,  // EVASIONS + 歩の不成なども含む。
 
-  NON_EVASIONS, // 王手の回避ではない手(指し手生成元で王手されていない局面であることがわかっているときのすべての指し手)
-  NON_EVASIONS_ALL, // NON_EVASIONS + 歩の不成などを含む。
+  NON_EVASIONS,  // 王手の回避ではない手(指し手生成元で王手されていない局面であることがわかっているときのすべての指し手)
+  NON_EVASIONS_ALL,  // NON_EVASIONS + 歩の不成などを含む。
 
   // 以下の2つは、pos.legalを内部的に呼び出すので生成するのに時間が少しかかる。棋譜の読み込み時などにしか使わない。
-  LEGAL, // 合法手すべて。ただし、角・飛の不成は生成しない。
-  LEGAL_ALL, // 合法手すべて
+  LEGAL,  // 合法手すべて。ただし、角・飛の不成は生成しない。
+  LEGAL_ALL,  // 合法手すべて
 
-  CHECKS,     // 王手となる指し手(歩の不成などは含まない)
-  CHECKS_ALL, // 王手となる指し手(歩の不成なども含む)
+  CHECKS,      // 王手となる指し手(歩の不成などは含まない)
+  CHECKS_ALL,  // 王手となる指し手(歩の不成なども含む)
 
-  QUIET_CHECKS, // 王手となる指し手(歩の不成などは含まない)で、CAPTURESの指し手は含まない指し手
-  QUIET_CHECKS_ALL, // 王手となる指し手(歩の不成なども含む)でCAPTURESの指し手は含まない指し手
+  QUIET_CHECKS,  // 王手となる指し手(歩の不成などは含まない)で、CAPTURESの指し手は含まない指し手
+  QUIET_CHECKS_ALL,  // 王手となる指し手(歩の不成なども含む)でCAPTURESの指し手は含まない指し手
 
-  RECAPTURES, // 指定升への移動の指し手のみを生成する。(歩の不成などは含まない)
-  RECAPTURES_ALL, // 指定升への移動の指し手のみを生成する。(歩の不成なども含む)
+  RECAPTURES,  // 指定升への移動の指し手のみを生成する。(歩の不成などは含まない)
+  RECAPTURES_ALL,  // 指定升への移動の指し手のみを生成する。(歩の不成なども含む)
 };
 
-class Position; // 前方宣言
+class Position;  // 前方宣言
 
 // 指し手を生成器本体
 // gen_typeとして生成する指し手の種類をシてする。gen_allをfalseにすると歩の不成、香の8段目の不成は生成しない。通常探索中はそれでいいはず。
@@ -830,10 +828,11 @@ template <MOVE_GEN_TYPE gen_type>
 ExtMove *generateMoves(const Position &pos, ExtMove *mlist);
 template <MOVE_GEN_TYPE gen_type>
 ExtMove *generateMoves(const Position &pos, ExtMove *mlist,
-                       Square recapSq); // RECAPTURES,RECAPTURES_ALL専用
+                       Square recapSq);  // RECAPTURES,RECAPTURES_ALL専用
 
 // MoveGeneratorのwrapper。範囲forで回すときに便利。
-template <MOVE_GEN_TYPE GenType> struct MoveList {
+template <MOVE_GEN_TYPE GenType>
+struct MoveList {
   // 局面をコンストラクタの引数に渡して使う。すると指し手が生成され、lastが初期化されるので、
   // このclassのbegin(),end()が正常な値を返すようになる。
   // lastは内部のバッファを指しているので、このクラスのコピーは不可。
@@ -856,7 +855,7 @@ template <MOVE_GEN_TYPE GenType> struct MoveList {
     return begin()[i];
   }
 
-private:
+ private:
   ExtMove mlist[MAX_MOVES], *last;
 };
 
@@ -870,12 +869,12 @@ typedef uint64_t Key;
 
 // 千日手の状態
 enum RepetitionState {
-  REPETITION_NONE, // 千日手ではない
-  REPETITION_WIN,  // 連続王手の千日手による勝ち
-  REPETITION_LOSE, // 連続王手の千日手による負け
-  REPETITION_DRAW, // 連続王手ではない普通の千日手
-  REPETITION_SUPERIOR, // 優等局面(盤上の駒が同じで手駒が相手より優れている)
-  REPETITION_INFERIOR, // 劣等局面(盤上の駒が同じで手駒が相手より優れている)
+  REPETITION_NONE,  // 千日手ではない
+  REPETITION_WIN,   // 連続王手の千日手による勝ち
+  REPETITION_LOSE,  // 連続王手の千日手による負け
+  REPETITION_DRAW,  // 連続王手ではない普通の千日手
+  REPETITION_SUPERIOR,  // 優等局面(盤上の駒が同じで手駒が相手より優れている)
+  REPETITION_INFERIOR,  // 劣等局面(盤上の駒が同じで手駒が相手より優れている)
   REPETITION_NB,
 };
 

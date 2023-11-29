@@ -1,10 +1,10 @@
 #ifndef _POSITION_H_
 #define _POSITION_H_
 
-#include "bitboard.h"
-
 #include <deque>
-#include <memory> // std::unique_ptr
+#include <memory>  // std::unique_ptr
+
+#include "bitboard.h"
 
 // --------------------
 //     局面の定数
@@ -87,7 +87,7 @@ typedef std::unique_ptr<StateList> StateListPtr;
 // --------------------
 
 class Position {
-public:
+ public:
   // --- ctor
 
   Position() = default;
@@ -293,7 +293,8 @@ public:
   bool pseudo_legal(const Move m) const { return pseudo_legal_s<true>(m); }
 
   // All == false        : 歩や大駒の不成に対してはfalseを返すpseudo_legal()
-  template <bool All> bool pseudo_legal_s(const Move m) const;
+  template <bool All>
+  bool pseudo_legal_s(const Move m) const;
 
   // toの地点に歩を打ったときに打ち歩詰めにならないならtrue。
   // 歩をtoに打つことと、二歩でないこと、toの前に敵玉がいることまでは確定しているものとする。
@@ -302,9 +303,9 @@ public:
 
   // 二歩でなく、かつ打ち歩詰めでないならtrueを返す。
   bool legal_pawn_drop(const Color us, const Square to) const {
-    return !((pieces(us, PAWN) & FILE_BB[file_of(to)]) // 二歩
+    return !((pieces(us, PAWN) & FILE_BB[file_of(to)])  // 二歩
              || ((pawnEffect(us, to) == Bitboard(king_square(~us)) &&
-                  !legal_drop(to)))); // 打ち歩詰め
+                  !legal_drop(to))));  // 打ち歩詰め
   }
 
   // --- StateInfo
@@ -337,19 +338,22 @@ public:
   // 局面を出力する。(USI形式ではない) デバッグ用。
   friend std::ostream &operator<<(std::ostream &os, const Position &pos);
 
-private:
+ private:
   // StateInfoの初期化(初期化するときに内部的に用いる)
   void set_state(StateInfo *si) const;
 
   // 王手になるbitboard等を更新する。set_state()とdo_move()のときに自動的に行われる。
   // null moveのときは利きの更新を少し端折れるのでフラグを渡すことに。
-  template <bool doNullMove> void set_check_info(StateInfo *si) const;
+  template <bool doNullMove>
+  void set_check_info(StateInfo *si) const;
 
   // do_move()の先後分けたもの。内部的に呼び出される。
-  template <Color Us> void do_move_impl(Move m, StateInfo &st, bool givesCheck);
+  template <Color Us>
+  void do_move_impl(Move m, StateInfo &st, bool givesCheck);
 
   // undo_move()の先後分けたもの。内部的に呼び出される。
-  template <Color Us> void undo_move_impl(Move m);
+  template <Color Us>
+  void undo_move_impl(Move m);
 
   // --- Bitboards
 

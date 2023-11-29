@@ -25,7 +25,7 @@ std::string pv(const Position &pos, int depth);
 // もし可能なら等価で合法な指し手を返す。(合法でないときはMOVE_NONEを返す。"resign"に対してはMOVE_RESIGNを返す。)
 // Stockfishでは第二引数にconstがついていないが、これはつけておく。
 Move to_move(const Position &pos, const std::string &str);
-} // namespace USI
+}  // namespace USI
 
 // 外部からis_ready_cmd()を呼び出す。
 // 局面は初期化されない。
