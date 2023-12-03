@@ -27,8 +27,4 @@ std::string pv(const Position &pos, int depth);
 Move to_move(const Position &pos, const std::string &str);
 }  // namespace USI
 
-// 外部からis_ready_cmd()を呼び出す。
-// 局面は初期化されない。
-void is_ready();
-
 #endif
