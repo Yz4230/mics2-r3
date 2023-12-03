@@ -3,8 +3,6 @@
 #include <fstream>
 #include <sstream>
 
-using namespace std;
-
 namespace {
 
 // --------------------
@@ -12,10 +10,10 @@ namespace {
 // --------------------
 
 // logging用のhack。streambufをこれでhookしてしまえば追加コードなしで普通に
-// cinからの入力とcoutへの出力をファイルにリダイレクトできる。
+// std::cinからの入力とstd::coutへの出力をファイルにリダイレクトできる。
 // cf. http://groups.google.com/group/comp.lang.c++/msg/1d941c0f26ea0d81
-struct Tie : public streambuf {
-  Tie(streambuf *buf_, streambuf *log_) : buf(buf_), log(log_) {}
+struct Tie : public std::streambuf {
+  Tie(std::streambuf *buf_, std::streambuf *log_) : buf(buf_), log(log_) {}
 
   int sync() override { return log->pubsync(), buf->pubsync(); }
   int overflow(int c) override { return write(buf->sputc((char)c), "<< "); }
@@ -28,7 +26,7 @@ struct Tie : public streambuf {
     return last = log->sputc((char)c);
   }
 
-  streambuf *buf, *log;  // 標準入出力 , ログファイル
+  std::streambuf *buf, *log;  // 標準入出力 , ログファイル
 };
 
 struct Logger {
@@ -36,27 +34,29 @@ struct Logger {
     static Logger log;
 
     if (b && !log.file.is_open()) {
-      log.file.open("io_log.txt", ifstream::out);
-      cin.rdbuf(&log.in);
-      cout.rdbuf(&log.out);
-      cout << "start logger" << endl;
+      log.file.open("io_log.txt", std::ifstream::out);
+      std::cin.rdbuf(&log.in);
+      std::cout.rdbuf(&log.out);
+      std::cout << "start logger" << std::endl;
     } else if (!b && log.file.is_open()) {
-      cout << "end logger" << endl;
-      cout.rdbuf(log.out.buf);
-      cin.rdbuf(log.in.buf);
+      std::cout << "end logger" << std::endl;
+      std::cout.rdbuf(log.out.buf);
+      std::cin.rdbuf(log.in.buf);
       log.file.close();
     }
   }
 
  private:
   Tie in, out;  // 標準入力とファイル、標準出力とファイルのひも付け
-  ofstream file;  // ログを書き出すファイル
+  std::ofstream file;  // ログを書き出すファイル
 
   // clangだとここ警告が出るので一時的に警告を抑制する。
 #pragma warning(disable : 4068)  // MSVC用の不明なpragmaの抑制
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wuninitialized"
-  Logger() : in(cin.rdbuf(), file.rdbuf()), out(cout.rdbuf(), file.rdbuf()) {}
+  Logger()
+      : in(std::cin.rdbuf(), file.rdbuf()),
+        out(std::cout.rdbuf(), file.rdbuf()) {}
 #pragma clang diagnostic pop
 
   ~Logger() { start(false); }
@@ -71,12 +71,12 @@ void start_logger(bool b) { Logger::start(b); }
 //  engine info
 // --------------------
 
-const string engine_info() {
-  stringstream ss;
+const std::string engine_info() {
+  std::stringstream ss;
 
   ss << "id name " << ENGINE_NAME << ' ' << ENGINE_VERSION << ' '
-     << (Is64Bit ? "64" : "32") << TARGET_CPU << endl
-     << "id author by " << AUTHOR << endl;
+     << (Is64Bit ? "64" : "32") << TARGET_CPU << std::endl
+     << "id author by " << AUTHOR << std::endl;
 
   return ss.str();
 }
