@@ -310,19 +310,6 @@ Bitboard effects_from(Piece pc, Square sq, const Bitboard &occ) {
     case B_QUEEN:
     case W_QUEEN:
       return horseEffect(sq, occ) | dragonEffect(sq, occ);
-
-    case NO_PIECE:
-    case PIECE_WHITE:
-    case 2:
-    case 3:
-    case 10:
-    case 11:
-    case 18:
-    case 19:
-    case 26:
-    case 27:
-      return ZERO_BB;  // これも入れておかないと初期化が面倒になる。
-
     default:
       UNREACHABLE;
       return ALL_BB;
