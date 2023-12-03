@@ -7,10 +7,8 @@
 #include "misc.h"
 #include "search.h"
 
-using namespace std;
-
-void random_player_cmd(Position &pos, istringstream &is);
-void user_test(Position &pos, istringstream &is);
+void random_player_cmd(Position &pos, std::istringstream &is);
+void user_test(Position &pos, std::istringstream &is);
 
 void is_ready_cmd(Position &pos, StateListPtr &states) {
   // --- 初期化
@@ -22,12 +20,12 @@ void is_ready_cmd(Position &pos, StateListPtr &states) {
   states = StateListPtr(new StateList(1));
   pos.set_hirate(&states->back());
 
-  cout << "readyok" << endl;
+  std::cout << "readyok" << std::endl;
 }
 
-void position_cmd(Position &pos, istringstream &is, StateListPtr &states) {
+void position_cmd(Position &pos, std::istringstream &is, StateListPtr &states) {
   Move m;
-  string token, sfen;
+  std::string token, sfen;
 
   is >> token;
 
@@ -56,9 +54,9 @@ void position_cmd(Position &pos, istringstream &is, StateListPtr &states) {
   }
 }
 
-void go_cmd(const Position &pos, istringstream &is, StateListPtr &states) {
+void go_cmd(const Position &pos, std::istringstream &is, StateListPtr &states) {
   Search::LimitsType limits;
-  string token;
+  std::string token;
 
   // 思考時間時刻の初期化
   Time.reset();
@@ -109,20 +107,20 @@ void USI::loop(int argc, char *argv[]) {
   // 探索開始局面(root)を格納するPositionクラス
   Position pos;
 
-  string cmd, token;
+  std::string cmd, token;
 
   // 局面を遡るためのStateInfoのlist。
   StateListPtr states(new StateList(1));
 
   // 先行入力されているコマンド
   // コマンドは前から取り出すのでqueueを用いる。
-  queue<string> cmds;
+  std::queue<std::string> cmds;
 
   // 引数として指定されたものを一つのコマンドとして実行する機能
   // ただし、','が使われていれば、そこでコマンドが区切れているものとして解釈する。
 
   for (int i = 1; i < argc; ++i) {
-    string s = argv[i];
+    std::string s = argv[i];
 
     // sから前後のスペースを除去しないといけない。
     while (*s.rbegin() == ' ') s.pop_back();
@@ -139,20 +137,21 @@ void USI::loop(int argc, char *argv[]) {
 
   do {
     if (cmds.size() == 0) {
-      if (!std::getline(cin, cmd))  // 入力が来るかEOFがくるまでここで待機する。
+      if (!std::getline(std::cin,
+                        cmd))  // 入力が来るかEOFがくるまでここで待機する。
         cmd = "quit";
     } else {
       cmd = cmds.front();
       cmds.pop();
     }
 
-    istringstream is(cmd);
+    std::istringstream is(cmd);
 
     token.clear();
-    is >> skipws >> token;
+    is >> std::skipws >> token;
 
     if (token == "usi")
-      cout << engine_info() << "usiok" << endl;
+      std::cout << engine_info() << "usiok" << std::endl;
 
     else if (token == "go")
       go_cmd(pos, is, states);
@@ -171,14 +170,14 @@ void USI::loop(int argc, char *argv[]) {
 
     // 現在の局面を表示する。(デバッグ用)
     else if (token == "d")
-      cout << pos << endl;
+      std::cout << pos << std::endl;
 
     // 現在の局面について評価関数を呼び出して、その値を返す。
     else if (token == "eval")
-      cout << "eval = " << Eval::evaluate(pos) << endl;
+      std::cout << "eval = " << Eval::evaluate(pos) << std::endl;
 
     else if (token == "compiler")
-      cout << compiler_info() << endl;
+      std::cout << compiler_info() << std::endl;
 
     else if (token == "sfen")
       position_cmd(pos, is, states);
@@ -189,17 +188,17 @@ void USI::loop(int argc, char *argv[]) {
 
     // この局面での指し手をすべて出力
     else if (token == "moves") {
-      for (auto m : MoveList<LEGAL_ALL>(pos)) cout << m.move << ' ';
-      cout << endl;
+      for (auto m : MoveList<LEGAL_ALL>(pos)) std::cout << m.move << ' ';
+      std::cout << std::endl;
     }
 
     // この局面が詰んでいるかの判定
     else if (token == "mated")
-      cout << pos.is_mated() << endl;
+      std::cout << pos.is_mated() << std::endl;
 
     // この局面のhash keyの値を出力
     else if (token == "key")
-      cout << hex << pos.state()->key() << dec << endl;
+      std::cout << std::hex << pos.state()->key() << std::dec << std::endl;
 
     // ランダムプレイヤーによるテスト
     else if (token == "rp")
@@ -210,7 +209,7 @@ void USI::loop(int argc, char *argv[]) {
       user_test(pos, is);
 
     else {
-      if (!token.empty()) cout << "No such option: " << token << endl;
+      if (!token.empty()) std::cout << "No such option: " << token << std::endl;
     }
 
   } while (token != "quit");
@@ -233,7 +232,7 @@ std::string USI::pv(const Position &pos, int depth) {
 
     if (v == -VALUE_INFINITE) goto END;
 
-    if (ss.rdbuf()->in_avail()) ss << endl;
+    if (ss.rdbuf()->in_avail()) ss << std::endl;
 
     ss << "info"
        << " depth " << d << " seldepth " << rootMoves[0].selDepth << " score "
