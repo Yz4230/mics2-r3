@@ -47,11 +47,8 @@ void Search::init() {}
 // isreadyコマンドの応答中に呼び出される。時間のかかる処理はここに書くこと。
 void Search::clear() {}
 
-Value search(Position &pos, int depth, int ply_from_root);
-// Value search(Position &pos, Value alpha, Value beta, int depth,
-//              int ply_from_root);
-// Value qsearch(Position &pos, Value alpha, Value beta, int depth,
-//               int ply_from_root);
+Value search(Position &pos, Value alpha, Value beta, int depth,
+             int ply_from_root);
 
 // 探索を開始する
 void Search::start_thinking(const Position &rootPos, StateListPtr &states,
@@ -105,8 +102,11 @@ void Search::search(Position &pos) {
       Move move = rootMoves[i].pv[0];
       // 局面を1手進める
       pos.do_move(move, si);
-      // 再帰的に探索(ネガマックス法)
-      Value value = -search(pos, rootDepth - 1, 0);
+      // // 再帰的に探索(ネガマックス法)
+      // Value value = -search(pos, rootDepth - 1, 0);
+      // 再帰的に探索(アルファ・ベータ法)
+      Value value =
+          -search(pos, -VALUE_INFINITE, VALUE_INFINITE, rootDepth - 1, 0);
       // 局面を1手戻す
       pos.undo_move(move);
       // 局面評価値と最善手の更新
@@ -128,8 +128,9 @@ END:;
   std::cout << "bestmove " << bestMove << std::endl;
 }
 
-// ネガマックス法(nega-max method)
-Value search(Position &pos, int depth, int ply_from_root) {
+// アルファ・ベータ法(apha-beta pruning)
+Value search(Position &pos, Value alpha, Value beta, int depth,
+             int ply_from_root) {
   // 末端では評価関数を呼び出す
   if (depth <= 0) return Eval::evaluate(pos);
 
@@ -150,7 +151,7 @@ Value search(Position &pos, int depth, int ply_from_root) {
     pos.do_move(m.move, si);
     ++moveCount;
     // 再帰的に search() を呼び出す. このとき, 評価値にマイナスをかける
-    Value value = -search(pos, depth - 1, ply_from_root + 1);
+    Value value = -search(pos, -beta, -alpha, depth - 1, ply_from_root + 1);
     // 局面を 1 手戻す
     pos.undo_move(m.move);
 
@@ -159,6 +160,12 @@ Value search(Position &pos, int depth, int ply_from_root) {
 
     // 局面評価値の更新
     if (value > maxValue) maxValue = value;
+
+    // アルファ値の更新
+    if (value > alpha) alpha = value;
+
+    // beta cut
+    if (alpha >= beta) break;
   }
 
   // 合法手の数が 0 のとき詰んでいる
@@ -168,7 +175,3 @@ Value search(Position &pos, int depth, int ply_from_root) {
   // 最も良い評価値を返す
   return maxValue;
 }
-
-// アルファ・ベータ法(apha-beta pruning)
-
-// 静止探索(quiescence search)
