@@ -19,8 +19,8 @@ TARGET_CPU = OTHER
 # TARGET_CPU = ZEN2
 
 # デバッガーを使用するか
-DEBUG = OFF
-# DEBUG = ON
+# DEBUG = OFF
+DEBUG = ON
 
 
 # CEDの端末でコンパイルする場合はg++8を指定する
@@ -91,7 +91,7 @@ LTOFLAGS = -flto
 CFLAGS  += -DUNICODE
 
 # stripの指示。(実行ファイルのサイズを小さく)
-LDFLAGS += -Wl,-s
+LDFLAGS += -Wl
 
 # mingw64では-D_WIN64,-D_WIN32は環境に応じて自動で設定されるので指定すべきではない。
 # CFLAGS += -D_WIN64
@@ -100,7 +100,7 @@ LDFLAGS += -Wl,-s
 # CFLAGS   += -march=native
 
 # デバッグ情報を付加
-# CFLAGS  += -g3 -ggdb
+CFLAGS += -g -gdwarf-4
 
 ifeq ($(findstring g++,$(COMPILER)),g++)
 	OPENMP   = -fopenmp
