@@ -2,6 +2,7 @@
 
 namespace Eval {
 int PieceValue[PIECE_NB] = {
+    // 先手の駒の価値
     0,
     PawnValue,
     0,
@@ -19,6 +20,7 @@ int PieceValue[PIECE_NB] = {
     DragonValue,
     0,
 
+    // 後手の駒の価値は負の値にする
     0,
     -PawnValue,
     0,
@@ -40,10 +42,10 @@ int PieceValue[PIECE_NB] = {
 Value evaluate(const Position &pos) {
   auto score = VALUE_ZERO;
 
-  // 持ち駒の評価
+  // 局面の評価
   for (Square sq : SQ) score += PieceValue[pos.piece_on(sq)];
 
-  // 局面の評価
+  // 手駒の評価
   for (Color c : COLOR) {
     auto hand = pos.hand_of(c);
     for (Piece pc : {PAWN, SILVER, BISHOP, ROOK, GOLD}) {
