@@ -58,8 +58,7 @@ void Search::start_thinking(const Position &rootPos, StateListPtr &states,
   Nodes = 0;
   Stop = false;
 
-  for (Move move : MoveList<LEGAL_ALL>(rootPos)) rootMoves.emplace_back(move);
-
+  for (Move move : MoveList<LEGAL>(rootPos)) rootMoves.emplace_back(move);
   ASSERT_LV3(states.get());
 
   Position *pos_ptr = const_cast<Position *>(&rootPos);
@@ -92,29 +91,29 @@ void Search::search(Position &pos) {
       Stop = true;
     });
 
-    Value maxValue = -VALUE_INFINITE;
-    StateInfo si;
-    // 探索の深さ. ここでは適当に5とした
-    int rootDepth = 5;
+    StateInfo state;
 
-    for (int i = 0; i < (int)rootMoves.size(); ++i) {
-      // 合法手のi番目から探索を開始
-      Move move = rootMoves[i].pv[0];
-      // 局面を1手進める
-      pos.do_move(move, si);
-      // // 再帰的に探索(ネガマックス法)
-      // Value value = -search(pos, rootDepth - 1, 0);
-      // 再帰的に探索(アルファ・ベータ法)
-      Value value =
-          -search(pos, -VALUE_INFINITE, VALUE_INFINITE, rootDepth - 1, 0);
-      // 局面を1手戻す
-      pos.undo_move(move);
-      // 局面評価値と最善手の更新
-      if (value > maxValue) {
-        maxValue = value;
-        bestMove = move;
+    auto cmp = [](const RootMove &a, const RootMove &b) {
+      return a.score > b.score;
+    };
+
+    for (int depth = 5; depth < MAX_PLY && !Stop; ++depth) {
+      for (size_t i = 0; i < rootMoves.size() && !Stop; ++i) {
+        // 合法手のi番目から探索を開始
+        Move move = rootMoves[i].pv[0];
+        // 局面を1手進める
+        pos.do_move(move, state);
+        // 再帰的に探索(アルファ・ベータ法)
+        Value value =
+            -search(pos, -VALUE_INFINITE, VALUE_INFINITE, depth - 1, 0);
+        rootMoves[i].score = value;
+        // 局面を1手戻す
+        pos.undo_move(move);
       }
+      std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
+      bestMove = rootMoves[0].pv[0];
     }
+
     // タイマースレッド終了
     Stop = true;
     if (timerThread != nullptr) {
@@ -146,7 +145,7 @@ Value search(Position &pos, Value alpha, Value beta, int depth,
   if (draw_type != REPETITION_NONE)
     return draw_value(draw_type, pos.side_to_move());
 
-  for (ExtMove m : MoveList<LEGAL_ALL>(pos)) {
+  for (ExtMove m : MoveList<LEGAL>(pos)) {
     // 局面を 1 手進める
     pos.do_move(m.move, si);
     ++moveCount;
