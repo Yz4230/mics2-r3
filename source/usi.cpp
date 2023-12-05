@@ -180,7 +180,7 @@ void USI::loop(int argc, char *argv[]) {
       std::cout << compiler_info() << std::endl;
 
     else if (token == "sfen")
-      position_cmd(pos, is, states);
+      std::cout << "sfen " << pos.sfen() << std::endl;
 
     // ログファイルの書き出しのon
     else if (token == "log")
