@@ -44,10 +44,13 @@ Value evaluate(const Position &pos) {
   for (Square sq : SQ) score += PieceValue[pos.piece_on(sq)];
 
   // 局面の評価
-  for (Color c : COLOR)
-    for (Piece pc : {PAWN, SILVER, BISHOP, ROOK, GOLD})
-      score += (c == BLACK ? 1 : -1) *
-               Value(hand_count(pos.hand_of(c), pc) * PieceValue[pc]);
+  for (Color c : COLOR) {
+    auto hand = pos.hand_of(c);
+    for (Piece pc : {PAWN, SILVER, BISHOP, ROOK, GOLD}) {
+      auto s = Value(hand_count(hand, pc) * PieceValue[pc]);
+      score += (c == BLACK ? s : -s);
+    }
+  }
 
   // 手番側から見た評価値を返す
   return pos.side_to_move() == BLACK ? score : -score;
