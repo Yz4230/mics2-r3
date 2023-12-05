@@ -579,13 +579,11 @@ enum Move : uint32_t {
 
   MOVE_NONE = 0,  // 無効な移動
 
-  MOVE_NULL =
-      (1 << 7) +
-      1,  // NULL
-          // MOVEを意味する指し手。Square(1)からSquare(1)への移動は存在しないのでここを特殊な記号として使う。
-  MOVE_RESIGN =
-      (2 << 7) +
-      2,  // << で出力したときに"resign"と表示する投了を意味する指し手。
+  // NULL
+  // MOVEを意味する指し手。Square(1)からSquare(1)への移動は存在しないのでここを特殊な記号として使う。
+  MOVE_NULL = (1 << 7) + 1,
+  // << で出力したときに"resign"と表示する投了を意味する指し手。
+  MOVE_RESIGN = (2 << 7) + 2,
 
   MOVE_DROP = 1 << 14,     // 駒打ちフラグ
   MOVE_PROMOTE = 1 << 15,  // 駒成りフラグ
@@ -735,18 +733,16 @@ constexpr u32 HAND_BIT_MASK = PIECE_BIT_MASK2[PAWN] | PIECE_BIT_MASK2[SILVER] |
 constexpr u32 HAND_BORROW_MASK = (HAND_BIT_MASK << 1) & ~HAND_BIT_MASK;
 
 // 手駒pcの枚数を返す。
-// このASSERTを有効化するとconstexprにならないのでコメントアウトしておく。
-// 返し値は引き算するときに符号を意識したくないのでintにしておく。
-constexpr int hand_count(
-    Hand hand,
-    Piece pr) { /* ASSERT_LV2(PIECE_HAND_ZERO <= pr && pr < PIECE_HAND_NB); */
+constexpr int hand_count(Hand hand, Piece pr) {
+  // このASSERTを有効化するとconstexprにならないのでコメントアウトしておく。
+  // ASSERT_LV2(PIECE_HAND_ZERO <= pr && pr < PIECE_HAND_NB);
+  // 返し値は引き算するときに符号を意識したくないのでintにしておく。
   return (int)(hand >> PIECE_BITS[pr]) & PIECE_BIT_MASK[pr];
 }
 
 // 手駒pcを持っているかどうかを返す。
-constexpr u32 hand_exists(
-    Hand hand,
-    Piece pr) { /* ASSERT_LV2(PIECE_HAND_ZERO <= pr && pr < PIECE_HAND_NB); */
+constexpr u32 hand_exists(Hand hand, Piece pr) {
+  /* ASSERT_LV2(PIECE_HAND_ZERO <= pr && pr < PIECE_HAND_NB); */
   return hand & PIECE_BIT_MASK2[pr];
 }
 

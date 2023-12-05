@@ -18,7 +18,8 @@ struct RootMove {
   bool operator==(const Move &m) const { return pv[0] == m; }
 
   bool operator<(const RootMove &m) const {
-    return m.score != score ? m.score < score : m.previousScore < previousScore;
+    if (m.score == score) return m.previousScore < previousScore;
+    return m.score < score;
   }
 
   // 今回のスコア
@@ -53,13 +54,6 @@ struct LimitsType {
     depth = perft = infinite = 0;
     nodes = 0;
     byoyomi[WHITE] = byoyomi[BLACK] = TimePoint(0);
-  }
-
-  // 時間制御を行うのか。
-  // 詰み専用探索、思考時間0、探索深さが指定されている、探索ノードが指定されている、思考時間無制限
-  // であるときは、時間制御に意味がないのでやらない。
-  bool use_time_management() const {
-    return !(movetime | depth | nodes | perft | infinite);
   }
 
   // time[]   : 残り時間(ms換算で)

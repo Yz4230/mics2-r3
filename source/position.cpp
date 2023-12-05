@@ -892,9 +892,9 @@ void Position::do_move(Move m, StateInfo &newSt, bool givesCheck) {
 
 // undo_move()を先後分けたdo_move_impl<>()を呼び出す。
 void Position::undo_move(Move m) {
+  // 1手前の手番が返らないとややこしいので入れ替えておく。
   if (sideToMove == BLACK)
-    undo_move_impl<WHITE>(
-        m);  // 1手前の手番が返らないとややこしいので入れ替えておく。
+    undo_move_impl<WHITE>(m);
   else
     undo_move_impl<BLACK>(m);
 }
