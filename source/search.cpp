@@ -1,6 +1,7 @@
 #include "search.h"
 
 #include <algorithm>
+#include <map>
 #include <thread>
 
 #include "evaluate.h"
@@ -112,6 +113,7 @@ void Search::search(Position &pos) {
       }
       std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
       bestMove = rootMoves[0].pv[0];
+      std::cout << USI::pv(pos, depth) << std::endl;
     }
 
     // タイマースレッド終了
