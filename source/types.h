@@ -27,9 +27,11 @@
 
 // 手番
 enum Color {
-  BLACK = 0 /*先手*/,
-  WHITE = 1 /*後手*/,
-  COLOR_NB /* =2 */,
+  // 先手
+  BLACK = 0,
+  // 後手
+  WHITE = 1,
+  COLOR_NB,
   COLOR_ZERO = 0,
 };
 
@@ -442,10 +444,10 @@ constexpr Value mated_in(int ply) { return (Value)(-VALUE_MATE + ply); }
 // USIプロトコルでやりとりするときの駒の表現
 extern const char *USI_PIECE;
 
+// 金の順番を飛の後ろにしておく
+// KINGを8にしておく
+// 成りを求めるときは pc |= 8; で求まる
 enum Piece : uint32_t {
-  // 金の順番を飛の後ろにしておく
-  // KINGを8にしておく
-  // 成りを求めるときは pc |= 8; で求まる
   NO_PIECE = 0,
   PAWN = 1,         // 歩
   SILVER = 4,       // 銀
