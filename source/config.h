@@ -1,9 +1,10 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#ifndef ENGINE_NAME
 #define ENGINE_NAME "Sample"
-#define ENGINE_VERSION "1"
-#define AUTHOR "unknown"
+#endif
+#define AUTHOR "Yuzuki Ishiyama"
 
 // ----------------------------
 //      Target CPU

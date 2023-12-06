@@ -176,6 +176,9 @@ $(OBJDIR)/%.o: %.cpp
 
 all: clean $(TARGET)
 
+# Set engine name: minighogi {timestamp}
+CFLAGS += -DENGINE_NAME="\"minishogi Build: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)\""
+
 .PHONY: normal
 normal: export CFLAGS += -DNDEBUG
 normal:

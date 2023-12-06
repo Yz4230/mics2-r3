@@ -74,9 +74,8 @@ void start_logger(bool b) { Logger::start(b); }
 const std::string engine_info() {
   std::stringstream ss;
 
-  ss << "id name " << ENGINE_NAME << ' ' << ENGINE_VERSION << ' '
-     << (Is64Bit ? "64" : "32") << TARGET_CPU << std::endl
-     << "id author by " << AUTHOR << std::endl;
+  ss << "id name " << ENGINE_NAME << std::endl;
+  ss << "id author by " << AUTHOR << std::endl;
 
   return ss.str();
 }
