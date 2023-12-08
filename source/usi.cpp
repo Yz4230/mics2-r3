@@ -116,30 +116,10 @@ void USI::loop(int argc, char *argv[]) {
   // コマンドは前から取り出すのでqueueを用いる。
   std::queue<std::string> cmds;
 
-  // 引数として指定されたものを一つのコマンドとして実行する機能
-  // ただし、','が使われていれば、そこでコマンドが区切れているものとして解釈する。
-
-  for (int i = 1; i < argc; ++i) {
-    std::string s = argv[i];
-
-    // sから前後のスペースを除去しないといけない。
-    while (*s.rbegin() == ' ') s.pop_back();
-    while (*s.begin() == ' ') s = s.substr(1, s.size() - 1);
-
-    if (s != ",")
-      cmd += s + " ";
-    else {
-      cmds.push(cmd);
-      cmd = "";
-    }
-  }
-  if (cmd.size() != 0) cmds.push(cmd);
-
   do {
     if (cmds.size() == 0) {
-      if (!std::getline(std::cin,
-                        cmd))  // 入力が来るかEOFがくるまでここで待機する。
-        cmd = "quit";
+      // 入力が来るかEOFがくるまでここで待機する。
+      if (!std::getline(std::cin, cmd)) cmd = "quit";
     } else {
       cmd = cmds.front();
       cmds.pop();
@@ -207,11 +187,6 @@ void USI::loop(int argc, char *argv[]) {
     // ユーザーによるテスト用コマンド
     else if (token == "user")
       user_test(pos, is);
-
-    else {
-      if (!token.empty()) std::cout << "No such option: " << token << std::endl;
-    }
-
   } while (token != "quit");
 }
 
