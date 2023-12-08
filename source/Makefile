@@ -70,10 +70,10 @@ endif
 ifeq ($(OS),Windows_NT)
 	CFLAGS += $(WCFLAGS)
 	LDFLAGS += -static -Wl,--stack,25000000
-	TARGET = minishogi-by-gcc.exe
+	TARGET = minishogi.exe
 else
 	CFLAGS += -D_LINUX
-	TARGET = minishogi-by-gcc
+	TARGET = minishogi
 endif
 
 # リンク時最適化。
@@ -85,7 +85,7 @@ LTOFLAGS = -flto
 CFLAGS  += -DUNICODE
 
 # stripの指示。(実行ファイルのサイズを小さく)
-LDFLAGS += -Wl
+LDFLAGS += -W
 
 # mingw64では-D_WIN64,-D_WIN32は環境に応じて自動で設定されるので指定すべきではない。
 # CFLAGS += -D_WIN64
@@ -129,6 +129,7 @@ endif
 
 SOURCES = \
 	main.cpp            \
+	args.cpp            \
 	types.cpp           \
 	bitboard.cpp        \
 	misc.cpp            \
@@ -177,7 +178,7 @@ $(OBJDIR)/%.o: %.cpp
 all: clean $(TARGET)
 
 # Set engine name: minighogi {timestamp}
-CFLAGS += -DENGINE_NAME="\"minishogi Build: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)\""
+CFLAGS += -DENGINE_NAME="\"minishogi_$(shell date -u +%Y-%m-%dT%H:%M:%SZ)\""
 
 .PHONY: normal
 normal: export CFLAGS += -DNDEBUG
