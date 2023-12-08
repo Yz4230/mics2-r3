@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "args.h"
+
 namespace {
 
 // --------------------
@@ -74,7 +76,9 @@ void start_logger(bool b) { Logger::start(b); }
 const std::string engine_info() {
   std::stringstream ss;
 
-  ss << "id name " << ENGINE_NAME << std::endl;
+  // {engine_name} rand={Args::random_first_moves} depth={Args::depth}
+  ss << "id name " << ENGINE_NAME << " rand=" << Args::random_first_moves
+     << " depth=" << Args::depth << std::endl;
   ss << "id author by " << AUTHOR << std::endl;
 
   return ss.str();
