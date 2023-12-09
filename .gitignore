@@ -7,3 +7,9 @@
 # artifacts
 /obj
 minishogi*
+
+# libraries
+/libtorch
+
+weights.txt
+key_to_index.txt

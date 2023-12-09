@@ -23,7 +23,7 @@ enum {
 // 駒の価値のテーブル(後手の駒は負の値)
 extern int PieceValue[PIECE_NB];
 
-Value evaluate(const Position &pos);
+double evaluate(const Position &pos);
 }  // namespace Eval
 
 #endif

@@ -23,7 +23,7 @@ struct RootMove {
   }
 
   // 今回のスコア
-  Value score = -VALUE_INFINITE;
+  double score = -VALUE_INFINITE;
 
   // 前回のスコア
   Value previousScore = -VALUE_INFINITE;

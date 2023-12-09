@@ -203,7 +203,7 @@ std::string USI::pv(const Position &pos, int depth) {
 
   {
     int d = updated ? depth : depth - 1;
-    Value v = updated ? rootMoves[0].score : rootMoves[0].previousScore;
+    double v = updated ? rootMoves[0].score : rootMoves[0].previousScore;
 
     if (v == -VALUE_INFINITE) goto END;
 
@@ -224,7 +224,7 @@ END:;
   return ss.str();
 }
 
-std::string USI::value(Value v) {
+std::string USI::value(double v) {
   ASSERT_LV3(-VALUE_INFINITE < v && v < VALUE_INFINITE);
 
   std::stringstream s;
@@ -236,7 +236,7 @@ std::string USI::value(Value v) {
   else if (v == -VALUE_MATE)
     s << "mate -0";
   else
-    s << "mate " << (v > 0 ? VALUE_MATE - v : -VALUE_MATE - v);
+    s << "mate " << (v > 0 ? (double)VALUE_MATE - v : -(double)VALUE_MATE - v);
 
   return s.str();
 }

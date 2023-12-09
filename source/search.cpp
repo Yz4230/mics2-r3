@@ -50,8 +50,8 @@ void Search::init() {}
 // isreadyコマンドの応答中に呼び出される。時間のかかる処理はここに書くこと。
 void Search::clear() {}
 
-Value search(Position &pos, Value alpha, Value beta, int depth,
-             int ply_from_root);
+double search(Position &pos, double alpha, double beta, int depth,
+              int ply_from_root);
 
 // 探索を開始する
 void Search::start_thinking(const Position &rootPos, StateListPtr &states,
@@ -116,7 +116,7 @@ void Search::search(Position &pos) {
           // 局面を1手進める
           pos.do_move(move, state);
           // 再帰的に探索(アルファ・ベータ法)
-          Value value =
+          double value =
               -search(pos, -VALUE_INFINITE, VALUE_INFINITE, depth - 1, 0);
           rootMoves[i].score = value;
           // 局面を1手戻す
@@ -142,13 +142,13 @@ END:;
 }
 
 // アルファ・ベータ法(apha-beta pruning)
-Value search(Position &pos, Value alpha, Value beta, int depth,
-             int ply_from_root) {
+double search(Position &pos, double alpha, double beta, int depth,
+              int ply_from_root) {
   // 末端では評価関数を呼び出す
   if (depth <= 0) return Eval::evaluate(pos);
 
   // 初期値はマイナス∞
-  Value maxValue = -VALUE_INFINITE;
+  double maxValue = -VALUE_INFINITE;
   // do_move() に必要
   StateInfo si;
   // この局面で do_move() された合法手の数
@@ -164,7 +164,7 @@ Value search(Position &pos, Value alpha, Value beta, int depth,
     pos.do_move(m.move, si);
     ++moveCount;
     // 再帰的に search() を呼び出す. このとき, 評価値にマイナスをかける
-    Value value = -search(pos, -beta, -alpha, depth - 1, ply_from_root + 1);
+    double value = -search(pos, -beta, -alpha, depth - 1, ply_from_root + 1);
     // 局面を 1 手戻す
     pos.undo_move(m.move);
 

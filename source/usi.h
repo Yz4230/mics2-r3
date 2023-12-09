@@ -12,7 +12,7 @@ void loop(int argc, char *argv[]);
 // USIプロトコルの形式でValue型を出力する。
 // 歩が100になるように正規化するので、operator <<(Value)をこういう仕様にすると
 // 実際の値と異なる表示になりデバッグがしにくくなるから、そうはしていない。
-std::string value(Value v);
+std::string value(double v);
 
 // 指し手をUSI文字列に変換する。
 std::string move(Move m /*, bool chess960*/);
