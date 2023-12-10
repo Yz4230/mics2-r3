@@ -109,7 +109,7 @@ void Search::search(Position &pos) {
     } else {
       // 以降は最善手を選択
       // 反復深化
-      for (int depth = 5; depth <= Args::depth && !Stop; ++depth) {
+      for (int depth = 3; depth <= Args::depth && !Stop; ++depth) {
         for (size_t i = 0; i < rootMoves.size() && !Stop; ++i) {
           // 合法手のi番目から探索を開始
           Move move = rootMoves[i].pv[0];

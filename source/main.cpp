@@ -10,15 +10,10 @@ int main(int argc, char *argv[]) {
   Args::parse(argc, argv);
 
   // --- ニューラルネットワークの読み込み
-  torch::jit::script::Module model = torch::jit::load("./model.pt");
+  torch::jit::script::Module model = torch::jit::load("./model-hbtm.pt");
   model.eval();
   Network::model = &model;
   printf("[info] Successfully loaded model\n");
-
-  // key_to_indexファイルの読み込み
-  auto key_to_index = Network::from_key_to_index_file("./key_to_index.txt");
-  Network::key_to_index = key_to_index;
-  printf("[info] Successfully loaded key_to_index\n");
 
   // --- 全体的な初期化
   Bitboards::init();
