@@ -98,7 +98,7 @@ void go_cmd(const Position &pos, std::istringstream &is, StateListPtr &states) {
   // goコマンドのデフォルトを1秒読みにする
   if (limits.byoyomi[BLACK] == 0 && limits.inc[BLACK] == 0 &&
       limits.time[BLACK] == 0)
-    limits.byoyomi[BLACK] = limits.byoyomi[WHITE] = 1000;
+    limits.byoyomi[BLACK] = limits.byoyomi[WHITE] = 10000;
 
   Search::start_thinking(pos, states, limits);
 }

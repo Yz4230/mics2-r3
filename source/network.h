@@ -28,8 +28,6 @@ extern std::unordered_map<int32_t, int32_t> key_to_index;
 std::unordered_map<int32_t, int32_t> from_key_to_index_file(
     const std::string &filename);
 
-std::vector<int32_t> position_to_keys(const Position &pos);
-
 }  // namespace Network
 
 #endif  // _NETWORK_H_
