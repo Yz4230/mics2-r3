@@ -42,25 +42,23 @@ int PieceValue[PIECE_NB] = {
 };
 
 double evaluate(const Position &pos) {
+  static torch::Tensor input = torch::zeros({1, 46800});
+
   double score = 0;
 
-  // // 局面の評価
-  // for (Square sq : SQ) score += PieceValue[pos.piece_on(sq)];
-
-  // // 手駒の評価
-  // for (Color c : COLOR) {
-  //   auto hand = pos.hand_of(c);
-  //   for (Piece pc : {PAWN, SILVER, BISHOP, ROOK, GOLD}) {
-  //     auto s = Value(hand_count(hand, pc) * PieceValue[pc]);
-  //     score += (c == BLACK ? s : -s);
-  //   }
-  // }
+  // fill zero
+  input.fill_(0);
 
   auto keys = Network::position_to_keys(pos);
-  score = Network::network->predict(keys);
+  for (auto key : keys) {
+    auto index = Network::key_to_index[key];
+    input[0][index] = 1;
+  }
+  auto output = Network::model->forward({input}).toTensor();
+  score = output[0][0].item<double>();
 
   // 手番側から見た評価値を返す
-  return pos.side_to_move() == BLACK ? score : -score;
+  return pos.side_to_move() == BLACK ? 1 - score : score;
 }
 
 }  // namespace Eval

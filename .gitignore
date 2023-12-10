@@ -13,3 +13,8 @@ minishogi*
 
 weights.txt
 key_to_index.txt
+
+/build
+/libtorch
+/source/build
+/source/model.pt

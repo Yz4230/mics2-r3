@@ -1,4 +1,7 @@
+
 #include "network.h"
+
+#include <torch/script.h>
 
 #include <cmath>
 #include <fstream>
@@ -10,12 +13,28 @@
 #include "position.h"
 
 namespace Network {
+// 先手が勝つ確率-後手が勝つ確率 -> [0, 1]
+// 0.5以下なら先手勝ち、0.5以上なら後手勝ち
+torch::jit::script::Module *model = nullptr;
 
 LinearNetwork::LinearNetwork(const std::vector<double> &weights)
     : weights(weights) {}
 
+/**
+ * @brief Load weights from file
+ * @deprecated Use Network::model instead
+ *
+ * @param filename
+ * @return LinearNetwork
+ */
 LinearNetwork LinearNetwork::from_weights_file(const std::string &filename) {
   std::ifstream file(filename);
+  // check existence
+  if (!file.good()) {
+    std::cerr << "File not found: " << filename << std::endl;
+    exit(1);
+  }
+
   std::vector<double> weights(46800);
   std::string line;
   while (std::getline(file, line)) {
@@ -46,6 +65,12 @@ std::unordered_map<int32_t, int32_t> key_to_index =
 std::unordered_map<int32_t, int32_t> from_key_to_index_file(
     const std::string &filename) {
   std::ifstream file(filename);
+  // check existence
+  if (!file.good()) {
+    std::cerr << "File not found: " << filename << std::endl;
+    exit(1);
+  }
+
   std::unordered_map<int32_t, int32_t> key_to_index;
   std::string line;
 

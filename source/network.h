@@ -1,12 +1,16 @@
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
+#include <torch/script.h>
+
 #include <unordered_map>
 #include <vector>
 
 #include "position.h"
 
 namespace Network {
+extern torch::jit::script::Module *model;
+
 class LinearNetwork {
  private:
   std::vector<double> weights;
