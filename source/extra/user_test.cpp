@@ -6,5 +6,6 @@
 #include "../types.h"
 
 void user_test(Position& pos, std::istringstream& is) {
-  std::cout << Eval::evaluate(pos) << std::endl;
+  double score = Eval::evaluate(pos);
+  printf("score = %f\n", score);
 }

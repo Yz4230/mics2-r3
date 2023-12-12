@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
   Args::parse(argc, argv);
 
   // --- ニューラルネットワークの読み込み
-  torch::jit::script::Module model = torch::jit::load("./model-hbtm.pt");
+  torch::jit::script::Module model = torch::jit::load("./model-kp.pt");
   model.eval();
   Network::model = &model;
   printf("[info] Successfully loaded model\n");
