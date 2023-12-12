@@ -1,6 +1,8 @@
 #ifndef _EVALUATE_H_
 #define _EVALUATE_H_
 
+#include <torch/torch.h>
+
 #include "position.h"
 #include "types.h"
 
@@ -20,8 +22,7 @@ enum {
   KingValue = 15000,
 };
 
-// 駒の価値のテーブル(後手の駒は負の値)
-extern int PieceValue[PIECE_NB];
+void convert_position_to_input(const Position &pos, const torch::Tensor &dist);
 
 double evaluate(const Position &pos);
 }  // namespace Eval

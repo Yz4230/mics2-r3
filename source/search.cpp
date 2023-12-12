@@ -1,13 +1,13 @@
 #include "search.h"
 
 #include <algorithm>
-#include <map>
 #include <random>
 #include <thread>
 
 #include "args.h"
 #include "evaluate.h"
 #include "misc.h"
+#include "network.h"
 #include "usi.h"
 
 struct MovePicker {
@@ -141,11 +141,12 @@ END:;
   std::cout << "bestmove " << bestMove << std::endl;
 }
 
-// アルファ・ベータ法(apha-beta pruning)
+// アルファ・ベータ法(alpha-beta pruning)
 double search(Position &pos, double alpha, double beta, int depth,
               int ply_from_root) {
-  // 末端では評価関数を呼び出す
-  if (depth <= 0) return Eval::evaluate(pos);
+  constexpr int INPUT_ALLOC_SIZE = 12;
+  static torch::Tensor input = torch::zeros({INPUT_ALLOC_SIZE, 21729});
+  static std::vector<c10::IValue> input_container{input};
 
   // 初期値はマイナス∞
   double maxValue = -VALUE_INFINITE;
@@ -159,26 +160,69 @@ double search(Position &pos, double alpha, double beta, int depth,
   if (draw_type != REPETITION_NONE)
     return draw_value(draw_type, pos.side_to_move());
 
-  for (ExtMove m : MoveList<LEGAL>(pos)) {
-    // 局面を 1 手進める
-    pos.do_move(m.move, si);
-    ++moveCount;
-    // 再帰的に search() を呼び出す. このとき, 評価値にマイナスをかける
-    double value = -search(pos, -beta, -alpha, depth - 1, ply_from_root + 1);
-    // 局面を 1 手戻す
-    pos.undo_move(m.move);
+  if (depth > 1) {
+    for (ExtMove m : MoveList<LEGAL>(pos)) {
+      // 局面を 1 手進める
+      pos.do_move(m.move, si);
+      ++moveCount;
 
-    // 探索の終了
-    if (Search::Stop) return VALUE_ZERO;
+      double value = -search(pos, -beta, -alpha, depth - 1, ply_from_root + 1);
 
-    // 局面評価値の更新
-    if (value > maxValue) maxValue = value;
+      // 局面を 1 手戻す
+      pos.undo_move(m.move);
 
-    // アルファ値の更新
-    if (value > alpha) alpha = value;
+      // 探索の終了
+      if (Search::Stop) return VALUE_ZERO;
 
-    // beta cut
-    if (alpha >= beta) break;
+      // 局面評価値の更新
+      if (value > maxValue) maxValue = value;
+
+      // アルファ値の更新
+      if (value > alpha) alpha = value;
+
+      // beta cut
+      if (alpha >= beta) break;
+    }
+  } else {
+    int count = 0;
+    auto move_list = MoveList<LEGAL>(pos);
+    size_t move_list_size = move_list.size();
+    size_t trailing_start_index =
+        (move_list_size / INPUT_ALLOC_SIZE) * INPUT_ALLOC_SIZE;
+
+    // 末端の評価を並列で行う
+    for (size_t i = 0; i < move_list_size; ++i) {
+      ExtMove m = move_list.at(i);
+      // 局面を 1 手進める
+      pos.do_move(m.move, si);
+      ++moveCount;
+
+      // 局面を入力に変換
+      Eval::convert_position_to_input(pos, input[count]);
+      count++;
+
+      if (count == INPUT_ALLOC_SIZE || i >= trailing_start_index) {
+        auto output = Network::model->forward(input_container).toTensor();
+        input.fill_(0);  // 使い回すので初期化
+
+        for (int j = 0; j < count; ++j) {
+          auto value = -(output[j][0].item<double>() * 2 - 1);
+          if (value > maxValue) maxValue = value;
+        }
+        count = 0;
+
+        // アルファ値の更新
+        if (maxValue > alpha) alpha = maxValue;
+      }
+      // 局面を 1 手戻す
+      pos.undo_move(m.move);
+
+      // 探索の終了
+      if (Search::Stop) return VALUE_ZERO;
+
+      // beta cut
+      if (alpha >= beta) break;
+    }
   }
 
   // 合法手の数が 0 のとき詰んでいる

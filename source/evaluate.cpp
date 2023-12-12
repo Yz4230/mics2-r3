@@ -13,9 +13,8 @@ constexpr int32_t piece_to_index[32] = {
 };
 // clang-format on
 
-std::vector<uint16_t> position_to_kp(const Position &pos) {
-  std::vector<uint16_t> kp;
-  kp.reserve(20);
+size_t position_to_kp(const Position &pos, uint16_t *kp) {
+  size_t count = 0;
 
   for (auto king_color : {BLACK, WHITE}) {
     auto king_sq = pos.king_square(king_color);
@@ -34,23 +33,21 @@ std::vector<uint16_t> position_to_kp(const Position &pos) {
       int king_index = is_opp_king * 25 + king_sq;
       int piece_index = is_opp_piece * 225 + piece_to_index[piece] * 25 + sq;
       auto kp_index = kp_index_map[king_index][piece_index];
-      kp.push_back(kp_index);
+      kp[count++] = kp_index;
     }
   }
 
-  return kp;
+  return count;
 }
 
-double evaluate(const Position &pos) {
-  static torch::Tensor input = torch::zeros({1, 21729});
-
-  // fill zero
-  input.fill_(0);
+void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
+  static uint16_t kp_indices[20];
 
   // [21600]: 2駒関係(KP)の評価
   constexpr int kp_input_offset = 0;
-  for (auto kp_index : position_to_kp(pos)) {
-    input[0][kp_input_offset + kp_index] = 1;
+  auto kp_count = position_to_kp(pos, kp_indices);
+  for (size_t i = 0; i < kp_count; ++i) {
+    dist[kp_input_offset + kp_indices[i]] = 1;
   }
 
   // [10]: 手駒の評価
@@ -61,9 +58,9 @@ double evaluate(const Position &pos) {
       int count = hand_count(hand, piece);
       int index = hand_input_offset + piece_to_index[piece];
       if (color == pos.side_to_move()) {
-        input[0][index] = count;
+        dist[index] = count;
       } else {
-        input[0][index + 5] = count;
+        dist[index + 5] = count;
       }
     }
   }
@@ -76,20 +73,25 @@ double evaluate(const Position &pos) {
 
     int index = board_input_offset + piece_to_index[piece];
     if (color_of(piece) == pos.side_to_move()) {
-      input[0][index] += 1;
+      dist[index] += 1;
     } else {
-      input[0][index + 9] += 1;
+      dist[index + 9] += 1;
     }
   }
 
   // [1]: 手番
   constexpr int turn_input_offset = board_input_offset + 18;
-  input[0][turn_input_offset] = pos.side_to_move() == BLACK;
+  dist[turn_input_offset] = pos.side_to_move() == BLACK;
 
   // [100]: 手数
   constexpr int moves_input_offset = turn_input_offset + 1;
-  input[0][moves_input_offset + pos.game_ply()] = 1;
+  dist[moves_input_offset + pos.game_ply()] = 1;
+}
 
+double evaluate(const Position &pos) {
+  torch::Tensor input = torch::zeros({1, 21729});
+
+  convert_position_to_input(pos, input);
   auto output = Network::model->forward({input}).toTensor();
 
   // 　現在の手番が勝つ確率, [0, 1]
