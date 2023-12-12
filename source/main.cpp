@@ -6,6 +6,8 @@
 #include "usi.h"
 
 int main(int argc, char *argv[]) {
+  c10::InferenceMode guard(true);
+
   // --- コマンドライン引数の解析
   Args::parse(argc, argv);
 
