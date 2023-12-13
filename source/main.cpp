@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   // --- QNNPACKの初期化
   bool use_quantized = false;
   for (auto e : at::globalContext().supportedQEngines()) {
-    if (e == c10::QEngine::QNNPACK || e == c10::QEngine::X86) {
+    if (e == c10::QEngine::QNNPACK || e == c10::QEngine::FBGEMM) {
       use_quantized = true;
       at::globalContext().setQEngine(e);
       break;
