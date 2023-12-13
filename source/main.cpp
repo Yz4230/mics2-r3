@@ -13,12 +13,12 @@ int main(int argc, char *argv[]) {
 
   // --- QNNPACKの初期化
   bool use_quantized = false;
-  for (auto e : at::globalContext().supportedQEngines()) {
-    if (e == c10::QEngine::QNNPACK || e == c10::QEngine::FBGEMM) {
-      use_quantized = true;
-      at::globalContext().setQEngine(e);
-    }
-  }
+  //  for (auto e : at::globalContext().supportedQEngines()) {
+  //    if (e == c10::QEngine::QNNPACK || e == c10::QEngine::FBGEMM) {
+  //      use_quantized = true;
+  //      at::globalContext().setQEngine(e);
+  //    }
+  //  }
 
   // --- ニューラルネットワークの読み込み
   torch::jit::script::Module model;
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     model = torch::jit::load("./model-kp-q8.pt");
     printf("[info] Set quantized mode\n");
   } else {
-    model = torch::jit::load("./model-kp.pt");
+    model = torch::jit::load("./model-sp.pt");
     printf("[info] Set float mode\n");
   }
 
