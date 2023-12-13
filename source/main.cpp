@@ -17,7 +17,6 @@ int main(int argc, char *argv[]) {
     if (e == c10::QEngine::QNNPACK || e == c10::QEngine::FBGEMM) {
       use_quantized = true;
       at::globalContext().setQEngine(e);
-      break;
     }
   }
 
@@ -32,6 +31,7 @@ int main(int argc, char *argv[]) {
   }
 
   model.eval();
+  optimize_for_inference(model);
   Network::model = &model;
   printf("[info] Successfully loaded model\n");
 
