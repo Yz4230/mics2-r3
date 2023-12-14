@@ -8,14 +8,14 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
       - name: cmake
         run: |
-          mkdir build
-          cd build
+          mkdir source/build
+          cd source/build
           cmake ..
       - name: build
         run: |
-          cd build
+          cd source/build
           cmake --build . --config Release
       - uses: actions/upload-artifact@v3
         with:
-          name: build
-          path: build/minishogi.exe
+          name: minishogi.exe
+          path: source/build/minishogi.exe
