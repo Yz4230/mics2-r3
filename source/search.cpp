@@ -50,9 +50,6 @@ void Search::init() {}
 // isreadyコマンドの応答中に呼び出される。時間のかかる処理はここに書くこと。
 void Search::clear() {}
 
-double search(Position &pos, double alpha, double beta, int depth,
-              int ply_from_root);
-
 // 探索を開始する
 void Search::start_thinking(const Position &rootPos, StateListPtr &states,
                             LimitsType limits) {
@@ -142,8 +139,8 @@ END:;
 }
 
 // アルファ・ベータ法(alpha-beta pruning)
-double search(Position &pos, double alpha, double beta, int depth,
-              int ply_from_root) {
+double Search::search(Position &pos, double alpha, double beta, int depth,
+                      int ply_from_root) {
   constexpr int INPUT_ALLOC_SIZE = 8;
   static torch::Tensor input = torch::zeros({INPUT_ALLOC_SIZE, 658});
   static std::vector<c10::IValue> input_container{input};

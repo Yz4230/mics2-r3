@@ -88,6 +88,10 @@ void start_thinking(const Position &rootPos, StateListPtr &states,
 
 // 探索本体
 void search(Position &rootPos);
+
+double search(Position &pos, double alpha, double beta, int depth,
+              int ply_from_root);
+
 }  // namespace Search
 
 #endif  // !SEARCH_H_
