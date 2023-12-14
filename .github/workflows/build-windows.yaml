@@ -19,7 +19,11 @@ jobs:
         run: |
           cd source/build
           cmake --build . --config Release
+      - name: zip
+        run: |
+          cd source/build/Release
+          7z a minishogi.zip *.exe *.dll
       - uses: actions/upload-artifact@v3
         with:
           name: minishogi.exe
-          path: source/build/Release/minishogi.exe
+          path: source/build/Release/minishogi.zip
