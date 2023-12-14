@@ -6,6 +6,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ilammy/msvc-dev-cmd@v1
+      - name: downalod libtorch
+        run: |
+          curl -L https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.1.1%2Bcpu.zip -o libtorch.zip
+          tar -xf libtorch.zip
       - name: cmake
         run: |
           mkdir source/build
