@@ -22,7 +22,7 @@ jobs:
       - name: zip
         run: |
           cd source/build/Release
-          7z a minishogi.zip *.exe *.dll
+          7z a minishogi.zip *.exe *.dll *.exp *.lib
       - uses: actions/upload-artifact@v3
         with:
           name: minishogi.zip
