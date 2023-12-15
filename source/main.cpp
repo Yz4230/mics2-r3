@@ -1,4 +1,5 @@
 #include <torch/script.h>
+#include <torch/torch.h>
 
 #include "args.h"
 #include "network.h"
@@ -6,24 +7,24 @@
 #include "usi.h"
 
 int main(int argc, char *argv[]) {
-  c10::InferenceMode guard(true);
+  torch::InferenceMode guard(true);
 
   // --- コマンドライン引数の解析
   Args::parse(argc, argv);
 
   // --- QNNPACKの初期化
   bool use_quantized = false;
-  //  for (auto e : at::globalContext().supportedQEngines()) {
-  //    if (e == c10::QEngine::QNNPACK || e == c10::QEngine::FBGEMM) {
-  //      use_quantized = true;
-  //      at::globalContext().setQEngine(e);
-  //    }
-  //  }
+  for (auto e : torch::globalContext().supportedQEngines()) {
+    if (e == torch::kQNNPACK || e == torch::kFBGEMM) {
+      use_quantized = true;
+      torch::globalContext().setQEngine(e);
+    }
+  }
 
   // --- ニューラルネットワークの読み込み
   torch::jit::script::Module model;
   if (use_quantized) {
-    model = torch::jit::load("./model-kp-q8.pt");
+    model = torch::jit::load("./model-sp-q8.pt");
     printf("[info] Set quantized mode\n");
   } else {
     model = torch::jit::load("./model-sp.pt");
@@ -31,7 +32,7 @@ int main(int argc, char *argv[]) {
   }
 
   model.eval();
-  optimize_for_inference(model);
+  torch::jit::optimize_for_inference(model);
   Network::model = &model;
   printf("[info] Successfully loaded model\n");
 
