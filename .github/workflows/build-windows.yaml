@@ -1,0 +1,29 @@
+name: Build for windows x86_64
+on: [push]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: download libtorch
+        run: |
+          curl -L https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.1.1%2Bcpu.zip -o libtorch.zip
+          tar -xf libtorch.zip
+      - name: cmake
+        run: |
+          mkdir source/build
+          cd source/build
+          cmake ..
+      - name: build
+        run: |
+          cd source/build
+          cmake --build . --config Release
+      - name: zip
+        run: |
+          cd source/build/Release
+          7z a minishogi.zip *.exe *.dll *.exp *.lib
+      - uses: actions/upload-artifact@v3
+        with:
+          name: minishogi.zip
+          path: source/build/Release/minishogi.zip
