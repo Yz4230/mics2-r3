@@ -145,8 +145,9 @@ END:;
 double search(Position &pos, double alpha, double beta, int depth,
               int ply_from_root) {
   constexpr int INPUT_ALLOC_SIZE = 8;
-  static torch::Tensor input = torch::zeros({INPUT_ALLOC_SIZE, 658});
-  static std::vector<c10::IValue> input_container{input};
+  static auto input = torch::zeros({INPUT_ALLOC_SIZE, 658});
+  static auto slice = torch::indexing::Slice(0, INPUT_ALLOC_SIZE);
+  static std::vector<c10::IValue> input_container(1);
 
   // 初期値はマイナス∞
   double maxValue = -VALUE_INFINITE;
@@ -202,6 +203,8 @@ double search(Position &pos, double alpha, double beta, int depth,
       count++;
 
       if (count == INPUT_ALLOC_SIZE || i >= trailing_start_index) {
+        slice = torch::indexing::Slice(0, count);
+        input_container[0] = input.index({slice});
         auto output = Network::model->forward(input_container).toTensor();
         input.fill_(0);  // 使い回すので初期化
 
