@@ -1,4 +1,5 @@
 #include <torch/script.h>
+#include <torch/torch.h>
 
 #include "args.h"
 #include "network.h"
@@ -13,10 +14,10 @@ int main(int argc, char *argv[]) {
 
   // --- QNNPACKの初期化
   bool use_quantized = false;
-  for (auto e : at::globalContext().supportedQEngines()) {
-    if (e == c10::QEngine::QNNPACK || e == c10::QEngine::FBGEMM) {
+  for (auto e : torch::globalContext().supportedQEngines()) {
+    if (e == torch::kQNNPACK || e == torch::kFBGEMM) {
       use_quantized = true;
-      at::globalContext().setQEngine(e);
+      torch::globalContext().setQEngine(e);
     }
   }
 
