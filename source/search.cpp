@@ -144,8 +144,8 @@ END:;
 // アルファ・ベータ法(alpha-beta pruning)
 double search(Position &pos, double alpha, double beta, int depth,
               int ply_from_root) {
-  constexpr int INPUT_ALLOC_SIZE = 12;
-  static torch::Tensor input = torch::zeros({INPUT_ALLOC_SIZE, 21729});
+  constexpr int INPUT_ALLOC_SIZE = 8;
+  static torch::Tensor input = torch::zeros({INPUT_ALLOC_SIZE, 658});
   static std::vector<c10::IValue> input_container{input};
 
   // 初期値はマイナス∞

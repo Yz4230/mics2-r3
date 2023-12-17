@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     model = torch::jit::load("./model-kp-q8.pt");
     printf("[info] Set quantized mode\n");
   } else {
-    model = torch::jit::load("./model-kp.pt");
+    model = torch::jit::load("./model-sp.pt");
     printf("[info] Set float mode\n");
   }
 
