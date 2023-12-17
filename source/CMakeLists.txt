@@ -21,7 +21,6 @@ set(LIBS ${LIBS} Threads::Threads)
 
 set(SOURCES
     main.cpp
-    network.cpp
     args.cpp
     types.cpp
     bitboard.cpp

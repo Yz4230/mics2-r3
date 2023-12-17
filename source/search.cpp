@@ -7,7 +7,6 @@
 #include "args.h"
 #include "evaluate.h"
 #include "misc.h"
-#include "network.h"
 #include "usi.h"
 
 struct MovePicker {
@@ -185,6 +184,8 @@ double search(Position &pos, double alpha, double beta, int depth,
       if (alpha >= beta) break;
     }
   } else {
+    const auto model = Eval::models[std::min(ply_from_root / 10, 5)];
+
     int count = 0;
     auto move_list = MoveList<LEGAL>(pos);
     size_t move_list_size = move_list.size();
@@ -205,7 +206,7 @@ double search(Position &pos, double alpha, double beta, int depth,
       if (count == INPUT_ALLOC_SIZE || i >= trailing_start_index) {
         slice = torch::indexing::Slice(0, count);
         input_container[0] = input.index({slice});
-        auto output = Network::model->forward(input_container).toTensor();
+        auto output = model->forward(input_container).toTensor();
         input.fill_(0);  // 使い回すので初期化
 
         for (int j = 0; j < count; ++j) {

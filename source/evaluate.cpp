@@ -1,9 +1,7 @@
 #include "evaluate.h"
 
-#include "kp_index_map.h"
-#include "network.h"
-
 namespace Eval {
+torch::jit::script::Module *models[6] = {nullptr};
 
 // clang-format off
 constexpr uint8_t piece_c_to_py[32] = {
@@ -77,8 +75,6 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
     }
   }
 
-  //  debug
-
   // [2]: 手番
   dist[TURN_START + pos.side_to_move()] = 1;
 
@@ -88,12 +84,13 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
 }
 
 double evaluate(const Position &pos) {
+  const auto model = Eval::models[std::min(pos.game_ply() / 10, 5)];
   torch::Tensor input = torch::zeros({1, 658});
 
   input.fill_(0);
   convert_position_to_input(pos, input[0]);
   torch::save(input, "input.pt");
-  auto output = Network::model->forward({input}).toTensor();
+  auto output = model->forward({input}).toTensor();
 
   // 　現在の手番が勝つ確率, [0, 1]
   auto score = output[0][0].item<double>();
