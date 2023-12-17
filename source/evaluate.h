@@ -7,7 +7,7 @@
 #include "types.h"
 
 namespace Eval {
-extern torch::jit::script::Module *models[6];
+extern torch::jit::script::Module *model;
 
 // Apery(WCSC26)の駒割り
 enum {

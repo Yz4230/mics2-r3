@@ -1,7 +1,7 @@
 #include "evaluate.h"
 
 namespace Eval {
-torch::jit::script::Module *models[6] = {nullptr};
+torch::jit::script::Module *model = nullptr;
 
 // clang-format off
 constexpr uint8_t piece_c_to_py[32] = {
@@ -10,29 +10,32 @@ constexpr uint8_t piece_c_to_py[32] = {
 // clang-format on
 
 void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
-  //  POS_INDEX = np.arange(2*10*25).reshape(2, 10, 25) # 2: side, 10: piece,
-  //  25: square HAND_INDEX = np.arange(2*5*2).reshape(2, 5*2) # 2: side, 5:
-  //  kind of piece, 2: number of pieces PIECE_INDEX =
-  //  np.arange(2*9*2).reshape(2, 9*2) # 2: side, 9: kind of piece, 2: number of
-  //  pieces TURN_INDEX = np.arange(2) # 2: side PLY_INDEX = np.arange(100) #
-  //  100: ply, (start from 0, over 99 is treated as 99)
+  constexpr uint8_t SQ_TO_XY[25][2] = {
+      {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},  // 0~4
+      {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4},  // 5~9
+      {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4},  // 10~14
+      {3, 0}, {3, 1}, {3, 2}, {3, 3}, {3, 4},  // 15~19
+      {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}   // 20~24
+  };
 
-  //  POS_INDEX.size, HAND_INDEX.size, PIECE_INDEX.size, TURN_INDEX.size,
-  //  PLY_INDEX.size
-  //  (500, 20, 36, 2, 100)
+  constexpr uint8_t POS_INDEX[2][10] = {
+      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+      {10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+  };
 
-  constexpr int POS_START = 0;
-  constexpr int POS_SIZE = 500;
-  constexpr int HAND_START = POS_START + POS_SIZE;
-  constexpr int HAND_SIZE = 20;
-  constexpr int PIECE_START = HAND_START + HAND_SIZE;
-  constexpr int PIECE_SIZE = 36;
-  constexpr int TURN_START = PIECE_START + PIECE_SIZE;
-  constexpr int TURN_SIZE = 2;
-  constexpr int PLY_START = TURN_START + TURN_SIZE;
-  constexpr int PLY_SIZE = 100;
+  constexpr uint8_t HAND_INDEX[2][5][2] = {
+      {{20, 21}, {22, 23}, {24, 25}, {26, 27}, {28, 29}},
+      {{30, 31}, {32, 33}, {34, 35}, {36, 37}, {38, 39}}};
 
-  // [500]: 位置の評価
+  // clang-format off
+  constexpr uint8_t PIECE_INDEX[2][9][2] = {
+    {{40, 41}, {42, 43}, {44, 45}, {46, 47}, {48, 49}, {50, 51}, {52, 53}, {54, 55}, {56, 57}},
+    {{58, 59}, {60, 61}, {62, 63}, {64, 65}, {66, 67}, {68, 69}, {70, 71}, {72, 73}, {74, 75}}};
+  // clang-format on
+
+  constexpr uint8_t TURN_INDEX[2] = {76, 77};
+
+  // [20]: 位置の評価
   // [36]: 盤上駒の評価
   bool pos_at_least_one[36] = {0};  // 0~17: own, 18~35: opp
   for (auto sq : SQ) {
@@ -41,22 +44,23 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
 
     bool is_opp_piece = color_of(piece) != pos.side_to_move();
     int p = piece_c_to_py[piece];
-    int pos_index = is_opp_piece * 250 + (p - 1) * 25 + sq;
-    dist[POS_START + pos_index] = 1;
+    int pos_index = POS_INDEX[is_opp_piece][p - 1];
+    int px = SQ_TO_XY[sq][0];
+    int py = SQ_TO_XY[sq][1];
+    dist[pos_index][px][py] = 1;
 
     if (piece == B_KING || piece == W_KING) continue;
 
-    int piece_index = is_opp_piece * 18 + (p - 2) * 2;
+    int piece_index = PIECE_INDEX[is_opp_piece][p - 2][0];
     if (pos_at_least_one[piece_index]) {
-      dist[PIECE_START + piece_index + 1] = 1;
+      dist[piece_index + 1].fill_(1);
     } else {
-      dist[PIECE_START + piece_index] = 1;
+      dist[piece_index].fill_(1);
       pos_at_least_one[piece_index] = true;
     }
   }
 
   // [20]: 持ち駒の評価
-  bool hand_at_least_one[20] = {0};  // 0~9: own, 10~19: opp
   for (auto color : {BLACK, WHITE}) {
     auto hand = pos.hand_of(color);
     bool is_opp_hand = color != pos.side_to_move();
@@ -65,27 +69,20 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
       if (count == 0) continue;
 
       int p = piece_c_to_py[piece];
-      int hand_index = is_opp_hand * 10 + (p - 2) * 2;
-      if (hand_at_least_one[hand_index]) {
-        dist[HAND_START + hand_index + 1] = 1;
-      } else {
-        dist[HAND_START + hand_index] = 1;
-        hand_at_least_one[hand_index] = true;
+      int hand_index = HAND_INDEX[is_opp_hand][p - 2][0];
+      dist[hand_index].fill_(1);
+      if (count == 2) {
+        dist[hand_index + 1].fill_(1);
       }
     }
   }
 
   // [2]: 手番
-  dist[TURN_START + pos.side_to_move()] = 1;
-
-  // [100]: 手数
-  int ply = std::min(pos.game_ply(), 100);
-  dist[PLY_START + ply - 1] = 1;  // game_ply()は1から始まる
+  dist[TURN_INDEX[pos.side_to_move()]].fill_(1);
 }
 
 double evaluate(const Position &pos) {
-  const auto model = Eval::models[std::min(pos.game_ply() / 10, 5)];
-  torch::Tensor input = torch::zeros({1, 658});
+  torch::Tensor input = torch::zeros({1, 78, 5, 5});
 
   input.fill_(0);
   convert_position_to_input(pos, input[0]);
