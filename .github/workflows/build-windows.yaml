@@ -8,7 +8,7 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
       - name: download libtorch
         run: |
-          curl -L https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.1.1%2Bcpu.zip -o libtorch.zip
+          curl -L https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.1.2%2Bcpu.zip -o libtorch.zip
           tar -xf libtorch.zip
       - name: cmake
         run: |
