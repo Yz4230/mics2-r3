@@ -34,7 +34,7 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
 
   // [500]: 位置の評価
   // [36]: 盤上駒の評価
-  bool pos_at_least_one[36] = {0};  // 0~17: own, 18~35: opp
+  bool pos_at_least_one[18] = {false};  // 0~9: own, 10~17: opp
   for (auto sq : SQ) {
     auto piece = pos.piece_on(sq);
     if (piece == NO_PIECE) continue;
@@ -47,16 +47,16 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
     if (piece == B_KING || piece == W_KING) continue;
 
     int piece_index = is_opp_piece * 18 + (p - 2) * 2;
-    if (pos_at_least_one[piece_index]) {
+    int at_least_one_index = (is_opp_piece * 9) + (p - 2);
+    if (pos_at_least_one[p - 2]) {
       dist[PIECE_START + piece_index + 1] = 1;
     } else {
       dist[PIECE_START + piece_index] = 1;
-      pos_at_least_one[piece_index] = true;
+      pos_at_least_one[at_least_one_index] = true;
     }
   }
 
   // [20]: 持ち駒の評価
-  bool hand_at_least_one[20] = {0};  // 0~9: own, 10~19: opp
   for (auto color : {BLACK, WHITE}) {
     auto hand = pos.hand_of(color);
     bool is_opp_hand = color != pos.side_to_move();
@@ -66,11 +66,9 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
 
       int p = piece_c_to_py[piece];
       int hand_index = is_opp_hand * 10 + (p - 2) * 2;
-      if (hand_at_least_one[hand_index]) {
+      dist[HAND_START + hand_index] = 1;
+      if (count == 2) {
         dist[HAND_START + hand_index + 1] = 1;
-      } else {
-        dist[HAND_START + hand_index] = 1;
-        hand_at_least_one[hand_index] = true;
       }
     }
   }
