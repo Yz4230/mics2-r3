@@ -36,8 +36,8 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
   constexpr uint8_t TURN_INDEX[2] = {76, 77};
 
   // [20]: 位置の評価
-  // [36]: 盤上駒の評価
-  bool pos_at_least_one[36] = {0};  // 0~17: own, 18~35: opp
+  // [18]: 盤上駒の評価
+  bool pos_at_least_one[18] = {false};  // 0~9: 自駒, 10~19: 敵駒
   for (auto sq : SQ) {
     auto piece = pos.piece_on(sq);
     if (piece == NO_PIECE) continue;
@@ -52,11 +52,12 @@ void convert_position_to_input(const Position &pos, const torch::Tensor &dist) {
     if (piece == B_KING || piece == W_KING) continue;
 
     int piece_index = PIECE_INDEX[is_opp_piece][p - 2][0];
-    if (pos_at_least_one[piece_index]) {
+    int at_least_one_index = (is_opp_piece * 9) + (p - 2);
+    if (pos_at_least_one[at_least_one_index]) {
       dist[piece_index + 1].fill_(1);
     } else {
       dist[piece_index].fill_(1);
-      pos_at_least_one[piece_index] = true;
+      pos_at_least_one[at_least_one_index] = true;
     }
   }
 
