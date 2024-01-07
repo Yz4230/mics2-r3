@@ -81,59 +81,10 @@ void Search::search(Position &pos) {
 
   /* ここから探索部を記述する */
   {
-    /* 時間制御 */
-    Color us = pos.side_to_move();
-    std::thread *timerThread = nullptr;
-
-    // 今回は秒読み以外の設定は考慮しない
-    s64 endTime = Limits.byoyomi[us] - 150;
-
-    timerThread = new std::thread([&] {
-      while (Time.elapsed() < endTime && !Stop)
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      Stop = true;
-    });
-
-    StateInfo state;
-
-    auto cmp = [](const RootMove &a, const RootMove &b) {
-      return a.score > b.score;
-    };
-
-    if (pos.game_ply() <= Args::random_first_moves) {
-      // {random_first_moves}手目まではランダムに指す
-      std::random_device rnd;
-      std::mt19937 mt(rnd());
-      int i = mt() % rootMoves.size();
-      bestMove = rootMoves[i].pv[0];
-    } else {
-      // 以降は最善手を選択
-      // 反復深化
-      for (int depth = 5; depth <= Args::depth && !Stop; ++depth) {
-        for (size_t i = 0; i < rootMoves.size() && !Stop; ++i) {
-          // 合法手のi番目から探索を開始
-          Move move = rootMoves[i].pv[0];
-          // 局面を1手進める
-          pos.do_move(move, state);
-          // 再帰的に探索(アルファ・ベータ法)
-          Value value =
-              -search(pos, -VALUE_INFINITE, VALUE_INFINITE, depth - 1, 0);
-          rootMoves[i].score = value;
-          // 局面を1手戻す
-          pos.undo_move(move);
-        }
-        std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
-        bestMove = rootMoves[0].pv[0];
-        std::cout << USI::pv(pos, depth) << std::endl;
-      }
-    }
-
-    // タイマースレッド終了
-    Stop = true;
-    if (timerThread != nullptr) {
-      timerThread->join();
-      delete timerThread;
-    }
+    std::random_device rnd;
+    std::mt19937 mt(rnd());
+    int i = mt() % rootMoves.size();
+    bestMove = rootMoves[i].pv[0];
   }
   /* 探索部ここまで */
 
