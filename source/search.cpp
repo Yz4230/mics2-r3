@@ -121,9 +121,11 @@ void Search::search(Position &pos) {
           // 局面を1手戻す
           pos.undo_move(move);
         }
-        std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
-        bestMove = rootMoves[0].pv[0];
-        std::cout << USI::pv(pos, depth) << std::endl;
+        if (!Stop) {
+          std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
+          bestMove = rootMoves[0].pv[0];
+          std::cout << USI::pv(pos, depth) << std::endl;
+        }
       }
     }
 
