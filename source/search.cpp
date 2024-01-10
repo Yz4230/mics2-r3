@@ -110,8 +110,10 @@ void Search::search(Position &pos) {
         // 局面を1手戻す
         pos.undo_move(move);
       }
-      std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
-      bestMove = rootMoves[0].pv[0];
+      if (!Stop) {
+        std::stable_sort(rootMoves.begin(), rootMoves.end(), cmp);
+        bestMove = rootMoves[0].pv[0];
+      }
     }
 
     // タイマースレッド終了
